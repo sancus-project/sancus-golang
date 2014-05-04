@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-func Listen(addr string) (stdnet.Listener, error) {
+type Listener stdnet.Listener
+
+func Listen(addr string) (Listener, error) {
 	dom := "tcp"
 
 	// let the standard Listen return any error, not us
