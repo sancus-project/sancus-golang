@@ -8,21 +8,33 @@ import (
 
 type Listener stdnet.Listener
 
-func Listen(addr string) (Listener, error) {
-	network := "tcp"
+var networks = map[string]string{
+	"unix:": "unix",
+	"file:": "unix",
+}
 
-	// let the standard Listen return any error, not us
+func Listen(addr string) (Listener, error) {
+	var network string
+
 	if len(addr) > 0 {
 		if addr[1] == '/' || addr[1:2] == "./" || addr[1:3] == "../" {
 			network = "unix"
-		} else if strings.HasPrefix(addr, "unix:") || strings.HasPrefix(addr, "file:") {
-			network = "unix"
-			addr = addr[5:]
+		} else {
+			// check for known network family prefixes
+			for p, n := range networks {
+				if strings.HasPrefix(addr, p) {
+					network = n
+					addr = addr[len(p):]
+					break
+				}
+			}
 		}
 	}
 
 	if network == "unix" {
 		_ = os.Remove(addr)
+	} else if network == "" {
+		network = "tcp"
 	}
 
 	return stdnet.Listen(network, addr)
