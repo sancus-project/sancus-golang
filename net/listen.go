@@ -1,12 +1,12 @@
 package net
 
 import (
-	stdnet "net"
+	"net"
 	"os"
 	"strings"
 )
 
-type Listener stdnet.Listener
+type Listener net.Listener
 
 var networks = map[string]string{
 	"unix:": "unix",
@@ -37,5 +37,5 @@ func Listen(addr string) (Listener, error) {
 		network = "tcp"
 	}
 
-	return stdnet.Listen(network, addr)
+	return net.Listen(network, addr)
 }
