@@ -8,18 +8,26 @@ import (
 // Logger
 type Logger struct {
 	Level LogLevel
-	Tag   string
+	tag   string
+}
+
+func NewLogger(tag string, level LogLevel) *Logger {
+	return &Logger{tag: tag, Level: level}
 }
 
 func (l *Logger) IsLoggable(level LogLevel) bool {
 	return (l.Level <= level)
 }
 
+func (l *Logger) Tag() string {
+	return l.tag
+}
+
 func (l *Logger) Printf(level LogLevel, format string, a ...interface{}) (int, error) {
 	if l.Level <= level {
 		s := fmt.Sprintf(format, a)
 		if s != "" {
-			return l.Write(level, l.Tag, s)
+			return l.Write(level, l.tag, s)
 		}
 	}
 	return 0, nil
@@ -56,6 +64,6 @@ func (l *Logger) Fatal(format string, a ...interface{}) {
 }
 func (l *Logger) Panic(format string, a ...interface{}) {
 	l.Printf(ASSERT, format, a)
-	format = fmt.Sprintf("%s: %s\n", l.Tag, format)
+	format = fmt.Sprintf("%s: %s\n", l.tag, format)
 	panic(fmt.Sprintf(format, a))
 }

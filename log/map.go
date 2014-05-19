@@ -21,7 +21,7 @@ func (m *LoggerMap) Get(tag string) *Logger {
 	m.Lock()
 	logger, ok := m.m[tag]
 	if !ok {
-		logger = &Logger{Tag: tag, Level: m.Level}
+		logger = NewLogger(tag, m.Level)
 		m.m[tag] = logger
 	}
 	m.Unlock()
