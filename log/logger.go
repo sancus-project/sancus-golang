@@ -25,7 +25,7 @@ func (l *Logger) Tag() string {
 
 func (l *Logger) Printf(level LogLevel, format string, a ...interface{}) (int, error) {
 	if l.Level <= level {
-		s := fmt.Sprintf(format, a)
+		s := fmt.Sprintf(format, a...)
 		if s != "" {
 			return l.Write(level, l.tag, s)
 		}
@@ -41,29 +41,29 @@ func (l *Logger) Write(level LogLevel, tag string, message string) (int, error) 
 
 // Shortcuts
 func (l *Logger) Verbose(format string, a ...interface{}) (int, error) {
-	return l.Printf(VERBOSE, format, a)
+	return l.Printf(VERBOSE, format, a...)
 }
 func (l *Logger) Debug(format string, a ...interface{}) (int, error) {
-	return l.Printf(DEBUG, format, a)
+	return l.Printf(DEBUG, format, a...)
 }
 func (l *Logger) Info(format string, a ...interface{}) (int, error) {
-	return l.Printf(INFO, format, a)
+	return l.Printf(INFO, format, a...)
 }
 func (l *Logger) Warn(format string, a ...interface{}) (int, error) {
-	return l.Printf(WARN, format, a)
+	return l.Printf(WARN, format, a...)
 }
 func (l *Logger) Error(format string, a ...interface{}) (int, error) {
-	return l.Printf(ERROR, format, a)
+	return l.Printf(ERROR, format, a...)
 }
 func (l *Logger) WTF(format string, a ...interface{}) (int, error) {
-	return l.Printf(WTF, format, a)
+	return l.Printf(WTF, format, a...)
 }
 func (l *Logger) Fatal(format string, a ...interface{}) {
-	l.Printf(ASSERT, format, a)
+	l.Printf(ASSERT, format, a...)
 	os.Exit(1)
 }
 func (l *Logger) Panic(format string, a ...interface{}) {
-	l.Printf(ASSERT, format, a)
+	l.Printf(ASSERT, format, a...)
 	format = fmt.Sprintf("%s: %s\n", l.tag, format)
-	panic(fmt.Sprintf(format, a))
+	panic(fmt.Sprintf(format, a...))
 }
