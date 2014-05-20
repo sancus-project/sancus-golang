@@ -25,3 +25,8 @@ func Level() LogLevel {
 func GetLogger(tag string) *Logger {
 	return loggers.Get(tag)
 }
+
+// Shortcuts
+func Error(tag string, fmt string, a ...interface{}) (int, error) {
+	return StderrLogWrite(ERROR, tag, fmt, a...)
+}
