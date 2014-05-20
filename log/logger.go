@@ -5,6 +5,49 @@ import (
 	"os"
 )
 
+func StderrLogWrite(level LogLevel, tag string, fmt string, a ...interface{}) (int, error) {
+	return os.Stderr.WriteString(BaseEncoder(level, tag, fmt, a...))
+}
+
+func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) string {
+	var s string
+
+	switch level {
+	case VERBOSE:
+		s = "V/"
+	case DEBUG:
+		s = "D/"
+	case INFO:
+		s = "I/"
+	case WARN:
+		s = "W/"
+	case ERROR:
+		s = "E/"
+	case WTF:
+		s = "F/"
+	case ASSERT:
+		s = "A/"
+	default:
+		s = ""
+	}
+
+	if s == "" && tag == "" {
+		// NOP
+	} else if tag != "" {
+		s += tag + ": "
+	} else {
+		s += "undefined: "
+	}
+
+	if len(a) > 0 {
+		s += fmt.Sprintf(format, a...)
+	} else {
+		s += format
+	}
+
+	return s + "\n"
+}
+
 // Logger
 type Logger struct {
 	Level LogLevel
@@ -23,20 +66,11 @@ func (l *Logger) Tag() string {
 	return l.tag
 }
 
-func (l *Logger) Printf(level LogLevel, format string, a ...interface{}) (int, error) {
-	if l.Level <= level {
-		s := fmt.Sprintf(format, a...)
-		if s != "" {
-			return l.Write(level, l.tag, s)
-		}
+func (l *Logger) Printf(level LogLevel, fmt string, a ...interface{}) (int, error) {
+	if l.IsLoggable(level) {
+		return StderrLogWrite(level, l.tag, fmt, a...)
 	}
 	return 0, nil
-}
-
-// Backend
-func (l *Logger) Write(level LogLevel, tag string, message string) (int, error) {
-	s := fmt.Sprintf("%s: %s\n", tag, message)
-	return os.Stderr.WriteString(s)
 }
 
 // Shortcuts
@@ -64,6 +98,5 @@ func (l *Logger) Fatal(format string, a ...interface{}) {
 }
 func (l *Logger) Panic(format string, a ...interface{}) {
 	l.Printf(ASSERT, format, a...)
-	format = fmt.Sprintf("%s: %s\n", l.tag, format)
-	panic(fmt.Sprintf(format, a...))
+	panic(BaseEncoder(ASSERT, l.tag, format, a...))
 }
