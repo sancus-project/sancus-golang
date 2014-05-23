@@ -1,51 +1,60 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 )
 
 func StderrLogWrite(level LogLevel, tag string, fmt string, a ...interface{}) (int, error) {
-	return os.Stderr.WriteString(BaseEncoder(level, tag, fmt, a...))
+	return os.Stderr.Write(BaseEncoder(level, tag, fmt, a...))
 }
 
-func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) string {
-	var s string
+/* Returns line representation of a log entry */
+func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) []byte {
+	var buffer []byte
+	var b = bytes.NewBuffer(buffer)
+	var c rune
 
 	switch level {
 	case VERBOSE:
-		s = "V/"
+		c = 'V'
 	case DEBUG:
-		s = "D/"
+		c = 'D'
 	case INFO:
-		s = "I/"
+		c = 'I'
 	case WARN:
-		s = "W/"
+		c = 'W'
 	case ERROR:
-		s = "E/"
+		c = 'E'
 	case WTF:
-		s = "F/"
+		c = 'F'
 	case ASSERT:
-		s = "A/"
+		c = 'A'
 	default:
-		s = ""
+		c = '\000'
 	}
 
-	if s == "" && tag == "" {
-		// NOP
-	} else if tag != "" {
-		s += tag + ": "
-	} else {
-		s += "undefined: "
+	if tag != "" {
+		if c != '\000' {
+			b.WriteRune(c)
+			b.WriteRune('/')
+		}
+		b.WriteString(tag)
+		b.WriteString(": ")
+	} else if c != '\000' {
+		b.WriteRune(c)
+		b.WriteString(": ")
 	}
 
 	if len(a) > 0 {
-		s += fmt.Sprintf(format, a...)
+		b.WriteString(fmt.Sprintf(format, a...))
 	} else {
-		s += format
+		b.WriteString(format)
 	}
 
-	return s + "\n"
+	b.WriteRune('\n')
+	return b.Bytes()
 }
 
 // Logger
