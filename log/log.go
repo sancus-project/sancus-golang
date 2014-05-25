@@ -27,12 +27,15 @@ func GetLogger(tag string) *Logger {
 }
 
 // Shortcuts
-func Info(tag string, fmt string, a ...interface{}) (int, error) {
-	return StderrLogWrite(INFO, tag, fmt, a...)
+func Info(tag string, fmt string, a ...interface{}) bool {
+	StderrLogWrite(INFO, tag, fmt, a...)
+	return true
 }
-func Warn(tag string, fmt string, a ...interface{}) (int, error) {
-	return StderrLogWrite(WARN, tag, fmt, a...)
+func Warn(tag string, fmt string, a ...interface{}) bool {
+	StderrLogWrite(WARN, tag, fmt, a...)
+	return true
 }
-func Error(tag string, fmt string, a ...interface{}) (int, error) {
-	return StderrLogWrite(ERROR, tag, fmt, a...)
+func Error(tag string, fmt string, a ...interface{}) bool {
+	StderrLogWrite(ERROR, tag, fmt, a...)
+	return true
 }
