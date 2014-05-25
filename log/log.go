@@ -4,8 +4,8 @@ package log
 type LogLevel int
 
 const (
-	VERBOSE LogLevel = iota + 2
-	DEBUG
+	DEBUG LogLevel = iota + 2
+	VERBOSE
 	INFO
 	WARN
 	ERROR
