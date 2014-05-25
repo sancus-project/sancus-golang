@@ -6,13 +6,21 @@ import (
 )
 
 // PathDispatcher
-type PathDispatcher struct{}
+type PathDispatcher struct {
+	Logger *log.Logger
+}
+
+func NewPathDispatcher(loggerName string) *PathDispatcher {
+	return &PathDispatcher{Logger: log.GetLogger(loggerName)}
+}
 
 func (d *PathDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Info("PathDispatcher", "%v", r)
+	d.Logger.Debug("%s %s", r.Method, r.URL.Path)
+
 	http.NotFound(w, r)
 }
 
+// Handlers
 func (d *PathDispatcher) AddNamed(name string, pattern string, handler http.Handler) {
 }
 
