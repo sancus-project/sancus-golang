@@ -36,32 +36,25 @@ func NewBridge(scriptName string, logger string, handler http.Handler) *Bridge {
  * Strips scriptName out of URL.Path
  */
 func (d *Bridge) stripScriptName(r *http.Request) bool {
-	var script_name string
 	l := d.Logger
 
 	Prepare(r)
-	script_name = r.Header["sancus.script_name"][0]
 
-	m := d.scriptName.FindStringSubmatch(r.URL.Path)
-	if m != nil {
+	if m := d.scriptName.FindStringSubmatch(r.URL.Path); m != nil {
 		// script_name found
-		script_name += m[1]
+		if m[1] != "" {
+			script_name := r.Header["sancus.script_name"][0] + m[1]
+			r.Header["sancus.script_name"] = []string{script_name}
+			r.URL.Path = m[2]
 
-		r.URL.Path = m[2]
-		r.Header["sancus.script_name"] = []string{script_name}
-
-		if l.IsLoggable(log.DEBUG) {
-			l.Debug("%s%s -> %s (%q)", script_name, r.URL.Path, r.URL.Path, m)
-		} else {
-			l.Verbose("%s%s -> %s", script_name, r.URL.Path, r.URL.Path)
+			if !l.Debug("%s%s -> %s (%q)", script_name, r.URL.Path, r.URL.Path, m) {
+				l.Verbose("%s%s -> %s", script_name, r.URL.Path, r.URL.Path)
+			}
 		}
-
 		return true
-	} else if l.IsLoggable(log.DEBUG) {
-		l.Warn("%s: No ScriptName match! (%q)", r.URL.Path, m)
-	} else {
-		l.Warn("%s: No ScriptName match!", r.URL.Path)
 	}
+
+	l.Warn("%s: No ScriptName match!", r.URL.Path)
 	return false
 }
 
