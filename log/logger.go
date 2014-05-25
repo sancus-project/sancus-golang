@@ -12,8 +12,7 @@ func StderrLogWrite(level LogLevel, tag string, fmt string, a ...interface{}) (i
 
 /* Returns line representation of a log entry */
 func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) []byte {
-	var buffer []byte
-	var b = bytes.NewBuffer(buffer)
+	var b bytes.Buffer
 	var c rune
 
 	switch level {
