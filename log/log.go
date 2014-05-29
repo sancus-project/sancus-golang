@@ -5,6 +5,7 @@ type LogLevel int
 
 const (
 	DEBUG LogLevel = iota + 2
+	TRACE
 	VERBOSE
 	INFO
 	WARN

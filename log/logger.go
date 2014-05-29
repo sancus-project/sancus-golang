@@ -16,10 +16,12 @@ func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) []
 	var c rune
 
 	switch level {
-	case VERBOSE:
-		c = 'V'
 	case DEBUG:
 		c = 'D'
+	case TRACE:
+		c = 'T'
+	case VERBOSE:
+		c = 'V'
 	case INFO:
 		c = 'I'
 	case WARN:
@@ -83,11 +85,14 @@ func (l *Logger) Printf(level LogLevel, fmt string, a ...interface{}) bool {
 }
 
 // Shortcuts
-func (l *Logger) Verbose(format string, a ...interface{}) bool {
-	return l.Printf(VERBOSE, format, a...)
-}
 func (l *Logger) Debug(format string, a ...interface{}) bool {
 	return l.Printf(DEBUG, format, a...)
+}
+func (l *Logger) Trace(format string, a ...interface{}) bool {
+	return l.Printf(TRACE, format, a...)
+}
+func (l *Logger) Verbose(format string, a ...interface{}) bool {
+	return l.Printf(VERBOSE, format, a...)
 }
 func (l *Logger) Info(format string, a ...interface{}) bool {
 	return l.Printf(INFO, format, a...)
