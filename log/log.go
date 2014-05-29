@@ -1,5 +1,9 @@
 package log
 
+import (
+	"fmt"
+)
+
 // LogLevel
 type LogLevel int
 
@@ -23,7 +27,10 @@ func SetLevel(l LogLevel) {
 func Level() LogLevel {
 	return loggers.Level
 }
-func GetLogger(tag string) *Logger {
+func GetLogger(tag string, a ...interface{}) *Logger {
+	if len(a) > 0 {
+		return loggers.Get(fmt.Sprintf(tag, a...))
+	}
 	return loggers.Get(tag)
 }
 
