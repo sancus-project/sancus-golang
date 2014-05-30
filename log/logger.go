@@ -1,62 +1,8 @@
 package log
 
 import (
-	"bytes"
-	"fmt"
 	"os"
 )
-
-func StderrLogWrite(level LogLevel, tag string, fmt string, a ...interface{}) (int, error) {
-	return os.Stderr.Write(BaseEncoder(level, tag, fmt, a...))
-}
-
-/* Returns line representation of a log entry */
-func BaseEncoder(level LogLevel, tag string, format string, a ...interface{}) []byte {
-	var b bytes.Buffer
-	var c rune
-
-	switch level {
-	case DEBUG:
-		c = 'D'
-	case TRACE:
-		c = 'T'
-	case VERBOSE:
-		c = 'V'
-	case INFO:
-		c = 'I'
-	case WARN:
-		c = 'W'
-	case ERROR:
-		c = 'E'
-	case WTF:
-		c = 'F'
-	case ASSERT:
-		c = 'A'
-	default:
-		c = '\000'
-	}
-
-	if tag != "" {
-		if c != '\000' {
-			b.WriteRune(c)
-			b.WriteRune('/')
-		}
-		b.WriteString(tag)
-		b.WriteString(": ")
-	} else if c != '\000' {
-		b.WriteRune(c)
-		b.WriteString(": ")
-	}
-
-	if len(a) > 0 {
-		b.WriteString(fmt.Sprintf(format, a...))
-	} else {
-		b.WriteString(format)
-	}
-
-	b.WriteRune('\n')
-	return b.Bytes()
-}
 
 // Logger
 type Logger struct {
@@ -78,7 +24,7 @@ func (l *Logger) Tag() string {
 
 func (l *Logger) Printf(level LogLevel, fmt string, a ...interface{}) bool {
 	if l.IsLoggable(level) {
-		StderrLogWrite(level, l.tag, fmt, a...)
+		StderrBackend.LogWrite(level, l.tag, fmt, a...)
 		return true
 	}
 	return false
@@ -112,5 +58,5 @@ func (l *Logger) Fatal(format string, a ...interface{}) {
 }
 func (l *Logger) Panic(format string, a ...interface{}) {
 	l.Printf(ASSERT, format, a...)
-	panic(BaseEncoder(ASSERT, l.tag, format, a...))
+	panic(StderrBackend.Encode(ASSERT, l.tag, format, a...))
 }

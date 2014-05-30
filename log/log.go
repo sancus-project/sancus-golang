@@ -36,14 +36,14 @@ func GetLogger(tag string, a ...interface{}) *Logger {
 
 // Shortcuts
 func Info(tag string, fmt string, a ...interface{}) bool {
-	StderrLogWrite(INFO, tag, fmt, a...)
+	StderrBackend.LogWrite(INFO, tag, fmt, a...)
 	return true
 }
 func Warn(tag string, fmt string, a ...interface{}) bool {
-	StderrLogWrite(WARN, tag, fmt, a...)
+	StderrBackend.LogWrite(WARN, tag, fmt, a...)
 	return true
 }
 func Error(tag string, fmt string, a ...interface{}) bool {
-	StderrLogWrite(ERROR, tag, fmt, a...)
+	StderrBackend.LogWrite(ERROR, tag, fmt, a...)
 	return true
 }
