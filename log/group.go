@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -17,7 +18,11 @@ func NewGroup(level LogLevel) *Group {
 }
 
 // Methods
-func (m *Group) Get(tag string) *Logger {
+func (m *Group) Get(tag string, a ...interface{}) *Logger {
+	if len(a) > 0 {
+		tag = fmt.Sprintf(tag, a...)
+	}
+
 	m.Lock()
 	logger, ok := m.m[tag]
 	if !ok {
