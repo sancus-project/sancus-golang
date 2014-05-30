@@ -18,8 +18,7 @@ const (
 	ASSERT
 )
 
-// LoggerMap
-var loggers = NewLoggerMap(INFO)
+var loggers = NewGroup(INFO)
 
 func SetLevel(l LogLevel) {
 	loggers.Level = l

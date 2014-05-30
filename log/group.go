@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-type LoggerMap struct {
+type Group struct {
 	sync.Mutex
 
 	Level LogLevel
@@ -12,12 +12,12 @@ type LoggerMap struct {
 }
 
 // Constructor
-func NewLoggerMap(level LogLevel) *LoggerMap {
-	return &LoggerMap{Level: level, m: make(map[string]*Logger)}
+func NewGroup(level LogLevel) *Group {
+	return &Group{Level: level, m: make(map[string]*Logger)}
 }
 
 // Methods
-func (m *LoggerMap) Get(tag string) *Logger {
+func (m *Group) Get(tag string) *Logger {
 	m.Lock()
 	logger, ok := m.m[tag]
 	if !ok {
