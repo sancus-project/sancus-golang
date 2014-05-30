@@ -6,12 +6,17 @@ import (
 
 // Logger
 type Logger struct {
+	group *Group
 	Level LogLevel
 	tag   string
 }
 
-func NewLogger(tag string, level LogLevel) *Logger {
-	return &Logger{tag: tag, Level: level}
+func NewLogger(tag string, level LogLevel, group *Group) *Logger {
+	return &Logger{
+		tag:   tag,
+		Level: level,
+		group: group,
+	}
 }
 
 func (l *Logger) IsLoggable(level LogLevel) bool {
@@ -24,7 +29,7 @@ func (l *Logger) Tag() string {
 
 func (l *Logger) Printf(level LogLevel, fmt string, a ...interface{}) bool {
 	if l.IsLoggable(level) {
-		StderrBackend.LogWrite(level, l.tag, fmt, a...)
+		l.group.Backend.LogWrite(level, l.tag, fmt, a...)
 		return true
 	}
 	return false

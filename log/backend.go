@@ -8,6 +8,11 @@ import (
 
 var StderrBackend = FileBackend{f: os.Stderr}
 
+// LoggerBackend interface
+type LoggerBackend interface {
+	LogWrite(level LogLevel, tag string, fmt string, a ...interface{}) (int, error)
+}
+
 // FileBackend
 type FileBackend struct {
 	f *os.File

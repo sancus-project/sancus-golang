@@ -14,7 +14,7 @@ const (
 	ASSERT
 )
 
-var loggers = NewGroup(INFO)
+var loggers = NewGroup(INFO, &StderrBackend)
 
 func SetLevel(l LogLevel) {
 	loggers.Level = l
@@ -28,14 +28,14 @@ func GetLogger(tag string, a ...interface{}) *Logger {
 
 // Shortcuts
 func Info(tag string, fmt string, a ...interface{}) bool {
-	StderrBackend.LogWrite(INFO, tag, fmt, a...)
+	loggers.Backend.LogWrite(INFO, tag, fmt, a...)
 	return true
 }
 func Warn(tag string, fmt string, a ...interface{}) bool {
-	StderrBackend.LogWrite(WARN, tag, fmt, a...)
+	loggers.Backend.LogWrite(WARN, tag, fmt, a...)
 	return true
 }
 func Error(tag string, fmt string, a ...interface{}) bool {
-	StderrBackend.LogWrite(ERROR, tag, fmt, a...)
+	loggers.Backend.LogWrite(ERROR, tag, fmt, a...)
 	return true
 }
