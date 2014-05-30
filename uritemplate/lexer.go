@@ -43,7 +43,6 @@ const (
 )
 
 const (
-	tag = "uritemplate.lexer"
 	eof = -1
 )
 
@@ -53,11 +52,13 @@ func (t token) String() string {
 		return "EOF"
 	case tokenError:
 		return "Error:" + t.val
+	case tokenText:
+		return fmt.Sprintf("LITERAL:%q", t.val)
+	case tokenIdentifier:
+		return fmt.Sprintf("ID:%s", t.val)
+	default:
+		return fmt.Sprintf("%q", t.val)
 	}
-	if len(t.val) > 10 {
-		return fmt.Sprintf("%.10q...", t.val)
-	}
-	return fmt.Sprintf("%q", t.val)
 }
 
 /*
