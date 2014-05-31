@@ -36,10 +36,9 @@ const (
 	tokenRightBracket // "]"
 	tokenLeftBrace    // "{"
 	tokenRightBrace   // "}"
-	tokenColon        // ":"
-	tokenPipe         // "|"
 	tokenIdentifier   // [a-zA-Z] [a-zA-Z0-9_]*
 	tokenText         // [a-zA-Z0-9.,%_-]
+	tokenOption
 )
 
 const (
@@ -56,6 +55,8 @@ func (t token) String() string {
 		return fmt.Sprintf("LITERAL:%q", t.val)
 	case tokenIdentifier:
 		return fmt.Sprintf("ID:%s", t.val)
+	case tokenOption:
+		return fmt.Sprintf("OPTION:%q", t.val)
 	default:
 		return fmt.Sprintf("%q", t.val)
 	}
@@ -142,8 +143,17 @@ func (l *lexer) peek() rune {
  */
 type stateFn func(*lexer) stateFn
 
+func (l *lexer) fail(msg string, a ...interface{}) stateFn {
+	if len(a) > 0 {
+		msg = fmt.Sprintf(msg, a...)
+	}
+
+	l.tokens <- token{tokenError, msg}
+	return nil
+}
+
 func lexText(l *lexer) stateFn {
-	l.log.Trace("state:lexText, %v..%v/%v",
+	l.log.Trace("state:lexText [%v..%v/%v]",
 		l.start, l.pos, len(l.input))
 
 	for {
@@ -155,9 +165,9 @@ func lexText(l *lexer) stateFn {
 			break
 		}
 
-		l.log.Debug("state:lexText r:%c (%v) [%v..%v] ",
+		l.log.Debug("state:lexText r:%q (%v) [%v..%v/%v] ",
 			r, l.width,
-			l.start, l.pos)
+			l.start, l.pos, len(l.input))
 
 		switch r {
 		case '[':
@@ -166,6 +176,8 @@ func lexText(l *lexer) stateFn {
 			t = tokenRightBracket
 		case '$':
 			t = tokenEOL
+		case '{':
+			t, nextState = tokenLeftBrace, lexCaptureID
 		default:
 			continue
 		}
@@ -185,4 +197,93 @@ func lexText(l *lexer) stateFn {
 	}
 	l.emit(tokenEOF)
 	return nil
+}
+
+func lexCaptureID(l *lexer) stateFn {
+	var r rune
+	l.log.Trace("state:lexCaptureID, %v..%v/%v",
+		l.start, l.pos, len(l.input))
+
+	if r = l.next(); (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') {
+		l.log.Debug("state:lexCaptureID r:%q (%v) [%v..%v/%v] ",
+			r, l.width,
+			l.start, l.pos, len(l.input))
+
+		for {
+			var next stateFn
+			r = l.next()
+
+			l.log.Debug("state:lexText r:%q (%v) [%v..%v/%v] ",
+				r, l.width,
+				l.start, l.pos, len(l.input))
+
+			l.log.Debug("state:lexCaptureID r:%q (%v) [%v..%v/%v] ",
+				r, l.width,
+				l.start, l.pos, len(l.input))
+
+			if (r >= 'a' && r <= 'z') ||
+				(r >= 'A' && r <= 'Z') ||
+				(r >= '0' && r <= '9') ||
+				r == '_' {
+				// collecting identifier
+				continue
+			} else if r == '}' {
+				// standard capture
+				next = lexText
+			} else if r == ':' {
+				// capture with defined options
+				next = lexCaptureOption
+			} else {
+				break
+			}
+
+			l.backup()
+			l.emit(tokenIdentifier)
+			l.restore()
+
+			l.ignore()
+			return next
+		}
+
+		l.emit(tokenIdentifier)
+		return l.fail("incomplete capture")
+	}
+
+	return l.fail("invalid or missing missing capture ID")
+}
+
+func lexCaptureOption(l *lexer) stateFn {
+	l.log.Trace("state:lexCaptureOption, %v..%v/%v",
+		l.start, l.pos, len(l.input))
+
+	for {
+		var next stateFn
+		r := l.next()
+
+		l.log.Debug("state:lexCaptureOption r:%q (%v) [%v..%v/%v] ",
+			r, l.width,
+			l.start, l.pos, len(l.input))
+
+		if r == eof {
+			break
+		} else if r == '}' {
+			next = lexText
+		} else if r == '|' {
+			next = lexCaptureOption
+		} else {
+			continue
+		}
+
+		l.backup()
+		l.emit(tokenOption)
+		l.restore()
+
+		l.ignore()
+		return next
+	}
+
+	if l.pos > l.start {
+		l.emit(tokenOption)
+	}
+	return l.fail("incomplete capture")
 }

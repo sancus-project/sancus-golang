@@ -10,7 +10,7 @@ func ParseTemplate(template string, l *log.Logger) *Template {
 	lex := newLexer(template, l)
 	for {
 		t := lex.nextToken()
-		l.Trace("ParseTemplate: t=%s", t)
+		l.Trace("ParseTemplate: %s", t)
 		if t.typ == tokenEOF {
 			break
 		}
