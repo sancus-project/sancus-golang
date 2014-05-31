@@ -39,3 +39,11 @@ func Error(tag string, fmt string, a ...interface{}) bool {
 	loggers.Backend.LogWrite(ERROR, tag, fmt, a...)
 	return true
 }
+
+// Helpers
+func NonEmptyString(s0 string, s1 string) string {
+	if s0 == "" {
+		return s1
+	}
+	return s0
+}
