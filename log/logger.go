@@ -19,6 +19,17 @@ func NewLogger(tag string, level LogLevel, group *Group) *Logger {
 	}
 }
 
+func (l *Logger) SubLogger(tag string, a ...interface{}) *Logger {
+	if len(a) > 0 {
+		tag = "%s" + tag
+		a = append([]interface{}{l.tag}, a...)
+	} else {
+		tag = l.tag + tag
+	}
+
+	return l.group.Get2(l.Level, tag, a...)
+}
+
 func (l *Logger) IsLoggable(level LogLevel) bool {
 	return (l.Level <= level)
 }
