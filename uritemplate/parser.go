@@ -4,13 +4,14 @@ import (
 	"go.sancus.io/core/log"
 )
 
-type Template struct{}
-
 // Turn string into Template
-func ParseTemplate(template string, l *log.Logger) *Template {
+func string2Template(str string, tmpl *Template) error {
+	l := tmpl.logger
+
 	lexLogger := l.SubLogger(".lexer")
 	lexLogger.Level = log.INFO
-	lex := newLexer(template, lexLogger)
+
+	lex := newLexer(str, lexLogger)
 
 	for {
 		t := lex.nextToken()

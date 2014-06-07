@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"go.sancus.io/core/log"
+	"go.sancus.io/web/uritemplate"
 	"net/http"
 )
 
@@ -21,4 +22,8 @@ func (d *PathDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *PathDispatcher) AddHandler(name string, pattern string, handler http.Handler) {
+	l := d.Logger.SubLogger(".%s", log.NonEmptyString(name, "unnamed"))
+	l.Level = log.DEBUG
+
+	uritemplate.NewTemplate(pattern, l)
 }
