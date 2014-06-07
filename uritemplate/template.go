@@ -14,6 +14,7 @@ type expression interface {
 
 const (
 	exprLiteral exprType = iota + 1
+	exprEOL
 )
 
 // Template
@@ -53,5 +54,30 @@ func (t *tmplLiteral) String() string {
 
 func (t *Template) appendLiteral(str string) {
 	e := tmplLiteral{literal: str}
+	t.append(&e)
+}
+
+// Special logic elements
+//
+type tmplSpecial struct {
+	typ exprType
+}
+
+func (t *tmplSpecial) Type() exprType {
+	return t.typ
+}
+
+func (t *tmplSpecial) String() string {
+	switch t.typ {
+	case exprEOL:
+		return "EOL"
+	default:
+		return "unknown"
+	}
+}
+
+// EOL
+func (t *Template) appendEOL() {
+	e := tmplSpecial{typ: exprEOL}
 	t.append(&e)
 }
