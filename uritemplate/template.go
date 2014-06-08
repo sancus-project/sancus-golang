@@ -15,7 +15,7 @@ type expression interface {
 }
 
 const (
-	exprLiteral exprType = iota + 1
+	exprLITERAL exprType = iota + 1
 	exprEOL
 )
 
@@ -42,39 +42,39 @@ func (t *Template) append(e expression) {
 
 // Literal string
 //
-type tmplLiteral struct {
+type exprLiteral struct {
 	literal string
 }
 
-func (t *tmplLiteral) Type() exprType {
-	return exprLiteral
+func (e *exprLiteral) Type() exprType {
+	return exprLITERAL
 }
 
-func (t *tmplLiteral) String() string {
-	return fmt.Sprintf("%q", t.literal)
+func (e *exprLiteral) String() string {
+	return fmt.Sprintf("%q", e.literal)
 }
 
-func (t *tmplLiteral) addToken(t token) bool {
+func (e *exprLiteral) addToken(t token) bool {
 	return false
 }
 
 func (t *Template) appendLiteral(str string) {
-	e := tmplLiteral{literal: str}
+	e := exprLiteral{literal: str}
 	t.append(&e)
 }
 
 // Special logic elements
 //
-type tmplSpecial struct {
+type exprSpecial struct {
 	typ exprType
 }
 
-func (t *tmplSpecial) Type() exprType {
-	return t.typ
+func (e *exprSpecial) Type() exprType {
+	return e.typ
 }
 
-func (t *tmplSpecial) String() string {
-	switch t.typ {
+func (e *exprSpecial) String() string {
+	switch e.typ {
 	case exprEOL:
 		return "EOL"
 	default:
@@ -82,12 +82,12 @@ func (t *tmplSpecial) String() string {
 	}
 }
 
-func (t *tmplSpecial) addToken(t token) bool {
+func (e *exprSpecial) addToken(t token) bool {
 	return false
 }
 
 // EOL
 func (t *Template) appendEOL() {
-	e := tmplSpecial{typ: exprEOL}
+	e := exprSpecial{typ: exprEOL}
 	t.append(&e)
 }
