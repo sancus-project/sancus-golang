@@ -10,6 +10,8 @@ type exprType int
 type expression interface {
 	Type() exprType
 	String() string
+
+	addToken(t token) bool
 }
 
 const (
@@ -52,6 +54,10 @@ func (t *tmplLiteral) String() string {
 	return fmt.Sprintf("%q", t.literal)
 }
 
+func (t *tmplLiteral) addToken(t token) bool {
+	return false
+}
+
 func (t *Template) appendLiteral(str string) {
 	e := tmplLiteral{literal: str}
 	t.append(&e)
@@ -74,6 +80,10 @@ func (t *tmplSpecial) String() string {
 	default:
 		return "unknown"
 	}
+}
+
+func (t *tmplSpecial) addToken(t token) bool {
+	return false
 }
 
 // EOL
