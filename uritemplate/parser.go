@@ -4,17 +4,38 @@ import (
 	"go.sancus.io/core/log"
 )
 
+// parsing stack
+type exprStack struct {
+	stack []expression
+}
+
+func (s *exprStack) Len() int {
+	return len(s.stack)
+}
+
+func (s *exprStack) append(e expression) {
+	s.stack = append(s.stack, e)
+}
+
+func (s *exprStack) addToken(t token) bool {
+	if l := len(s.stack) - 1; l >= 0 {
+		e := s.stack[l]
+		return e.addToken(t)
+	}
+	return false
+}
+
 // Parser
 type parser struct {
 	logger *log.Logger
 
-	stack []expression
+	stack exprStack
 	tmpl  *Template
 }
 
 func (p *parser) addToken(t token) bool {
 	l := p.logger
-	stackLen := len(p.stack)
+	stackLen := p.stack.Len()
 
 	l.Trace("addToken: t=%s len=%v", t, stackLen)
 
@@ -34,13 +55,13 @@ func (p *parser) addToken(t token) bool {
 			return false
 
 		}
-
-		// continue
-		return true
+	} else if !p.stack.addToken(t) {
+		p.logger.Panic("addToken: Unhandled token (%s) [stackLen=%v]", t, stackLen)
+		return false
 	}
 
-	p.logger.Panic("addToken: Unhandled token (%s)", t)
-	return false
+	// continue
+	return true
 }
 
 // Turn string into Template
