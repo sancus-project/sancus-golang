@@ -6,31 +6,11 @@ import (
 
 // parsing stack
 type exprStack struct {
-	stack []expression
-}
-
-func (s *exprStack) Len() int {
-	return len(s.stack)
-}
-
-func (s *exprStack) append(e expression) {
-	s.stack = append(s.stack, e)
-}
-
-func (s *exprStack) pop() expression {
-	l := len(s.stack)
-	if l > 0 {
-		l = l - 1
-		e := s.stack[l]
-		s.stack = s.stack[:l]
-		return e
-	}
-	return nil
+	exprSequence
 }
 
 func (s *exprStack) addToken(t *token, p *parser) bool {
-	if l := len(s.stack) - 1; l >= 0 {
-		e := s.stack[l]
+	if e := s.last(); e != nil {
 		return e.addToken(t, p)
 	}
 	return false
@@ -46,12 +26,11 @@ type parser struct {
 
 func (p *parser) addToken(t token) bool {
 	l := p.logger
-	stackLen := p.stack.Len()
+	last := p.stack.last()
 
-	l.Trace("addToken: t=%s len=%v", t, stackLen)
-
-	if stackLen == 0 {
+	if last == nil {
 		// nothing incomplete waiting
+		l.Trace("addToken: t=%s", t)
 
 		switch t.typ {
 		case tokenText:
@@ -68,8 +47,8 @@ func (p *parser) addToken(t token) bool {
 			return false
 
 		}
-	} else if !p.stack.addToken(&t, p) {
-		p.logger.Panic("addToken: Unhandled token (%s) [stackLen=%v]", t, stackLen)
+	} else if !last.addToken(&t, p) {
+		p.logger.Panic("addToken: Unhandled token (%s) [last: %s]", t, last)
 		return false
 	}
 
@@ -79,7 +58,7 @@ func (p *parser) addToken(t token) bool {
 
 func (p *parser) startCapture() {
 	e := exprCapture{}
-	p.stack.append(&e)
+	p.stack.push(&e)
 }
 
 func (p *parser) pop() {
@@ -87,7 +66,7 @@ func (p *parser) pop() {
 	if e == nil {
 		p.logger.Panic("pop over empty stack")
 	} else if p.stack.Len() == 0 {
-		p.tmpl.append(e)
+		p.tmpl.push(e)
 	} else {
 		p.logger.Panic("pop: multilevel not yet implemented")
 	}
