@@ -11,8 +11,11 @@ type exprType int
 type expression interface {
 	Type() exprType
 	String() string
+}
 
-	addToken(t *token, s *parser) bool
+type container interface {
+	addToken(t *token, p *parser) bool
+	addExpression(e expression, p *parser) bool
 }
 
 const (
@@ -45,7 +48,6 @@ func (e *exprSequence) String() string {
 func (e *exprSequence) Len() int {
 	return len(e.expr)
 }
-
 func (e *exprSequence) last() expression {
 	if l := len(e.expr) - 1; l >= 0 {
 		return e.expr[l]
@@ -54,7 +56,7 @@ func (e *exprSequence) last() expression {
 }
 
 func (e *exprSequence) pop() expression {
-	if l := len(e.expr) -1; l >= 0 {
+	if l := len(e.expr) - 1; l >= 0 {
 		v := e.expr[l]
 		e.expr = e.expr[:l]
 		return v

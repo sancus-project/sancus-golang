@@ -10,9 +10,11 @@ type exprStack struct {
 }
 
 func (s *exprStack) addToken(t *token, p *parser) bool {
-	if e := s.last(); e != nil {
+	if e, ok := s.last().(container); ok {
 		return e.addToken(t, p)
 	}
+	p.logger.Error("addToken: Last expression in the stack (%s) doesn't accept subexpressions",
+		s.last(), t)
 	return false
 }
 
@@ -26,9 +28,8 @@ type parser struct {
 
 func (p *parser) addToken(t token) bool {
 	l := p.logger
-	last := p.stack.last()
 
-	if last == nil {
+	if p.stack.Len() == 0 {
 		// nothing incomplete waiting
 		l.Trace("addToken: t=%s", t)
 
@@ -41,24 +42,21 @@ func (p *parser) addToken(t token) bool {
 			// we are done
 			return false
 		case tokenLeftBrace:
-			p.startCapture()
+			v := exprCapture{}
+			p.stack.push(&v)
 		default:
-			p.logger.Panic("addToken: Unhandled token (%s)", t)
+			p.logger.Error("addToken: Unhandled top-level token %s", t)
 			return false
 
 		}
-	} else if !last.addToken(&t, p) {
-		p.logger.Panic("addToken: Unhandled token (%s) [last: %s]", t, last)
+		// continue
+		return true
+	} else if last, ok := p.stack.last().(container); ok {
+		return last.addToken(&t, p)
+	} else {
+		p.logger.Error("addToken: Unhandled token (%s) [last: %s]", t, p.stack.last())
 		return false
 	}
-
-	// continue
-	return true
-}
-
-func (p *parser) startCapture() {
-	e := exprCapture{}
-	p.stack.push(&e)
 }
 
 func (p *parser) pop() {
@@ -67,20 +65,14 @@ func (p *parser) pop() {
 		p.logger.Panic("pop over empty stack")
 	} else if p.stack.Len() == 0 {
 		p.tmpl.push(e)
+	} else if last, ok := p.stack.last().(container); ok {
+		last.addExpression(e, p)
 	} else {
-		p.logger.Panic("pop: multilevel not yet implemented")
+		p.logger.Panic("parent expression doesn't support subexpressions")
 	}
 }
 
 // expr.addToken()
-func (e *exprLiteral) addToken(t *token, p *parser) bool {
-	return false
-}
-
-func (e *exprSpecial) addToken(t *token, p *parser) bool {
-	return false
-}
-
 func (e *exprCapture) addToken(t *token, p *parser) bool {
 	switch t.typ {
 	case tokenIdentifier:
@@ -96,6 +88,12 @@ func (e *exprCapture) addToken(t *token, p *parser) bool {
 		p.pop()
 		return true
 	}
+	p.logger.Panic("addToken: Capture doesn't accept %s tokens", t)
+	return false
+}
+
+func (e *exprCapture) addExpression(v expression, p *parser) bool {
+	p.logger.Panic("addExpression: Capture doesn't accept subexpressions (%s)", v)
 	return false
 }
 
