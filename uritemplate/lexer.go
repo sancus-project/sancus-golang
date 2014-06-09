@@ -210,6 +210,7 @@ func lexCaptureID(l *lexer) stateFn {
 			l.start, l.pos, len(l.input))
 
 		for {
+			var emit *token
 			var next stateFn
 			r = l.next()
 
@@ -229,6 +230,7 @@ func lexCaptureID(l *lexer) stateFn {
 				continue
 			} else if r == '}' {
 				// standard capture
+				emit = &token{typ: tokenRightBrace}
 				next = lexText
 			} else if r == ':' {
 				// capture with defined options
@@ -241,7 +243,11 @@ func lexCaptureID(l *lexer) stateFn {
 			l.emit(tokenIdentifier)
 			l.restore()
 
-			l.ignore()
+			if emit != nil {
+				l.emit(emit.typ)
+			} else {
+				l.ignore()
+			}
 			return next
 		}
 
@@ -257,6 +263,7 @@ func lexCaptureOption(l *lexer) stateFn {
 		l.start, l.pos, len(l.input))
 
 	for {
+		var emit *token
 		var next stateFn
 		r := l.next()
 
@@ -267,6 +274,7 @@ func lexCaptureOption(l *lexer) stateFn {
 		if r == eof {
 			break
 		} else if r == '}' {
+			emit = &token{typ: tokenRightBrace}
 			next = lexText
 		} else if r == '|' {
 			next = lexCaptureOption
@@ -278,7 +286,11 @@ func lexCaptureOption(l *lexer) stateFn {
 		l.emit(tokenOption)
 		l.restore()
 
-		l.ignore()
+		if emit != nil {
+			l.emit(emit.typ)
+		} else {
+			l.ignore()
+		}
 		return next
 	}
 
