@@ -50,6 +50,8 @@ func (p *parser) addToken(t token) bool {
 		case tokenEOF:
 			// we are done
 			return false
+		case tokenLeftBrace:
+			p.startCapture()
 		default:
 			p.logger.Panic("addToken: Unhandled token (%s)", t)
 			return false
@@ -62,6 +64,11 @@ func (p *parser) addToken(t token) bool {
 
 	// continue
 	return true
+}
+
+func (p *parser) startCapture() {
+	e := exprCapture{}
+	p.stack.append(&e)
 }
 
 // Turn string into Template

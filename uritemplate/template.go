@@ -17,6 +17,7 @@ type expression interface {
 const (
 	exprLITERAL exprType = iota + 1
 	exprEOL
+	exprCAPTURE
 )
 
 // Template
@@ -38,6 +39,24 @@ func NewTemplate(tmpl string, logger *log.Logger) (*Template, error) {
 
 func (t *Template) append(e expression) {
 	t.expr = append(t.expr, e)
+}
+
+// Capture
+//
+type exprCapture struct {
+	key string
+}
+
+func (e *exprCapture) Type() exprType {
+	return exprCAPTURE
+}
+
+func (e *exprCapture) String() string {
+	return fmt.Sprintf("{%s}", log.NonEmptyString(e.key, "undefined"))
+}
+
+func (e *exprCapture) addToken(t token) bool {
+	return false
 }
 
 // Literal string
