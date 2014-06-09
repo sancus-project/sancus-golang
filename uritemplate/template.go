@@ -45,6 +45,7 @@ func (t *Template) append(e expression) {
 //
 type exprCapture struct {
 	key string
+	options []expression
 }
 
 func (e *exprCapture) Type() exprType {
@@ -56,6 +57,17 @@ func (e *exprCapture) String() string {
 }
 
 func (e *exprCapture) addToken(t token) bool {
+	switch t.typ {
+	case tokenIdentifier:
+		if len(e.key) == 0 && len(t.val) > 0 {
+			e.key = t.val
+			return true
+		}
+	case tokenOption:
+		s := exprLiteral{literal: t.val}
+		e.options = append(e.options, &s)
+		return true
+	}
 	return false
 }
 
