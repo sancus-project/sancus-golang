@@ -136,6 +136,6 @@ func string2Template(str string, tmpl *Template) error {
 		// eat all tokens
 	}
 
-	l.Trace("tmpl: %v", t.expr)
+	l.Trace("tmpl: %v", t)
 	return nil
 }

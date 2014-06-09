@@ -1,6 +1,7 @@
 package uritemplate
 
 import (
+	"bytes"
 	"fmt"
 	"go.sancus.io/core/log"
 )
@@ -39,6 +40,17 @@ func NewTemplate(tmpl string, logger *log.Logger) (*Template, error) {
 
 func (t *Template) append(e expression) {
 	t.expr = append(t.expr, e)
+}
+
+func (t *Template) String() string {
+	var b bytes.Buffer
+	for i, v := range t.expr {
+		if i > 0 {
+			b.WriteRune(' ')
+		}
+		b.WriteString(v.String())
+	}
+	return b.String()
 }
 
 // Capture
