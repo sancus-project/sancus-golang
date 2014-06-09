@@ -17,6 +17,17 @@ func (s *exprStack) append(e expression) {
 	s.stack = append(s.stack, e)
 }
 
+func (s *exprStack) pop() expression {
+	l := len(s.stack)
+	if l > 0 {
+		l = l - 1
+		e := s.stack[l]
+		s.stack = s.stack[:l]
+		return e
+	}
+	return nil
+}
+
 func (s *exprStack) addToken(t *token, p *parser) bool {
 	if l := len(s.stack) - 1; l >= 0 {
 		e := s.stack[l]
@@ -71,6 +82,17 @@ func (p *parser) startCapture() {
 	p.stack.append(&e)
 }
 
+func (p *parser) pop() {
+	e := p.stack.pop()
+	if e == nil {
+		p.logger.Panic("pop over empty stack")
+	} else if p.stack.Len() == 0 {
+		p.tmpl.append(e)
+	} else {
+		p.logger.Panic("pop: multilevel not yet implemented")
+	}
+}
+
 // expr.addToken()
 func (e *exprLiteral) addToken(t *token, p *parser) bool {
 	return false
@@ -90,6 +112,9 @@ func (e *exprCapture) addToken(t *token, p *parser) bool {
 	case tokenOption:
 		s := exprLiteral{literal: t.val}
 		e.options = append(e.options, &s)
+		return true
+	case tokenRightBrace:
+		p.pop()
 		return true
 	}
 	return false
