@@ -44,7 +44,7 @@ func (t *Template) append(e expression) {
 // Capture
 //
 type exprCapture struct {
-	key string
+	key     string
 	options []expression
 }
 
@@ -54,21 +54,6 @@ func (e *exprCapture) Type() exprType {
 
 func (e *exprCapture) String() string {
 	return fmt.Sprintf("{%s}", log.NonEmptyString(e.key, "undefined"))
-}
-
-func (e *exprCapture) addToken(t *token, p *parser) bool {
-	switch t.typ {
-	case tokenIdentifier:
-		if len(e.key) == 0 && len(t.val) > 0 {
-			e.key = t.val
-			return true
-		}
-	case tokenOption:
-		s := exprLiteral{literal: t.val}
-		e.options = append(e.options, &s)
-		return true
-	}
-	return false
 }
 
 // Literal string
@@ -83,10 +68,6 @@ func (e *exprLiteral) Type() exprType {
 
 func (e *exprLiteral) String() string {
 	return fmt.Sprintf("%q", e.literal)
-}
-
-func (e *exprLiteral) addToken(t *token, p *parser) bool {
-	return false
 }
 
 func (t *Template) appendLiteral(str string) {
@@ -111,10 +92,6 @@ func (e *exprSpecial) String() string {
 	default:
 		return "unknown"
 	}
-}
-
-func (e *exprSpecial) addToken(t *token, p *parser) bool {
-	return false
 }
 
 // EOL
