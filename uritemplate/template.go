@@ -11,7 +11,7 @@ type expression interface {
 	Type() exprType
 	String() string
 
-	addToken(t token) bool
+	addToken(t *token, s *parser) bool
 }
 
 const (
@@ -56,7 +56,7 @@ func (e *exprCapture) String() string {
 	return fmt.Sprintf("{%s}", log.NonEmptyString(e.key, "undefined"))
 }
 
-func (e *exprCapture) addToken(t token) bool {
+func (e *exprCapture) addToken(t *token, p *parser) bool {
 	switch t.typ {
 	case tokenIdentifier:
 		if len(e.key) == 0 && len(t.val) > 0 {
@@ -85,7 +85,7 @@ func (e *exprLiteral) String() string {
 	return fmt.Sprintf("%q", e.literal)
 }
 
-func (e *exprLiteral) addToken(t token) bool {
+func (e *exprLiteral) addToken(t *token, p *parser) bool {
 	return false
 }
 
@@ -113,7 +113,7 @@ func (e *exprSpecial) String() string {
 	}
 }
 
-func (e *exprSpecial) addToken(t token) bool {
+func (e *exprSpecial) addToken(t *token, p *parser) bool {
 	return false
 }
 

@@ -17,10 +17,10 @@ func (s *exprStack) append(e expression) {
 	s.stack = append(s.stack, e)
 }
 
-func (s *exprStack) addToken(t token) bool {
+func (s *exprStack) addToken(t *token, p *parser) bool {
 	if l := len(s.stack) - 1; l >= 0 {
 		e := s.stack[l]
-		return e.addToken(t)
+		return e.addToken(t, p)
 	}
 	return false
 }
@@ -57,7 +57,7 @@ func (p *parser) addToken(t token) bool {
 			return false
 
 		}
-	} else if !p.stack.addToken(t) {
+	} else if !p.stack.addToken(&t, p) {
 		p.logger.Panic("addToken: Unhandled token (%s) [stackLen=%v]", t, stackLen)
 		return false
 	}
