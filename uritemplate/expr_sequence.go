@@ -62,6 +62,9 @@ func (e *exprSequence) addToken(t *token, p *parser) bool {
 	case tokenLeftBrace:
 		v := exprCapture{}
 		p.stack.push(&v)
+	case tokenLeftBracket:
+		v := exprOptional{}
+		p.stack.push(&v)
 	default:
 		p.logger.Panic("addToken: Sequence doesn't accept %s tokens", t)
 		return false

@@ -9,6 +9,7 @@ const (
 	exprEOL
 	exprSEQUENCE
 	exprCAPTURE
+	exprOPTIONAL
 )
 
 type expression interface {
