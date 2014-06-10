@@ -20,15 +20,3 @@ func NewTemplate(tmpl string, logger *log.Logger) (*Template, error) {
 	}
 	return t, nil
 }
-
-// Literal
-func (t *Template) appendLiteral(str string) {
-	e := exprLiteral{literal: str}
-	t.push(&e)
-}
-
-// EOL
-func (t *Template) appendEOL() {
-	e := exprSpecial{typ: exprEOL}
-	t.push(&e)
-}

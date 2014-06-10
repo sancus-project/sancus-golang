@@ -27,30 +27,8 @@ type parser struct {
 }
 
 func (p *parser) addToken(t token) bool {
-	l := p.logger
-
 	if p.stack.Len() == 0 {
-		// nothing incomplete waiting
-		l.Trace("addToken: t=%s", t)
-
-		switch t.typ {
-		case tokenText:
-			p.tmpl.appendLiteral(t.val)
-		case tokenEOL:
-			p.tmpl.appendEOL()
-		case tokenEOF:
-			// we are done
-			return false
-		case tokenLeftBrace:
-			v := exprCapture{}
-			p.stack.push(&v)
-		default:
-			p.logger.Error("addToken: Unhandled top-level token %s", t)
-			return false
-
-		}
-		// continue
-		return true
+		return p.tmpl.addToken(&t, p)
 	} else if last, ok := p.stack.last().(container); ok {
 		return last.addToken(&t, p)
 	} else {
