@@ -72,31 +72,6 @@ func (p *parser) pop() {
 	}
 }
 
-// expr.addToken()
-func (e *exprCapture) addToken(t *token, p *parser) bool {
-	switch t.typ {
-	case tokenIdentifier:
-		if len(e.key) == 0 && len(t.val) > 0 {
-			e.key = t.val
-			return true
-		}
-	case tokenOption:
-		s := exprLiteral{literal: t.val}
-		e.options = append(e.options, &s)
-		return true
-	case tokenRightBrace:
-		p.pop()
-		return true
-	}
-	p.logger.Panic("addToken: Capture doesn't accept %s tokens", t)
-	return false
-}
-
-func (e *exprCapture) addExpression(v expression, p *parser) bool {
-	p.logger.Panic("addExpression: Capture doesn't accept subexpressions (%s)", v)
-	return false
-}
-
 // Turn string into Template
 func string2Template(str string, tmpl *Template) error {
 	l := tmpl.logger
