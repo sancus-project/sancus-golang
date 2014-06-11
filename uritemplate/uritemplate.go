@@ -7,7 +7,6 @@ type exprType int
 const (
 	exprLITERAL exprType = iota + 1
 	exprEOL
-	exprSEQUENCE
 	exprCAPTURE
 	exprOPTIONAL
 )

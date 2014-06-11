@@ -8,10 +8,6 @@ type exprSequence struct {
 	expr []expression
 }
 
-func (e *exprSequence) Type() exprType {
-	return exprSEQUENCE
-}
-
 func (e *exprSequence) String() string {
 	var b bytes.Buffer
 	for i, v := range e.expr {
