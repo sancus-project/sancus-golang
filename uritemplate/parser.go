@@ -54,8 +54,7 @@ func (p *parser) pop() {
 func string2Template(str string, tmpl *Template) error {
 	l := tmpl.logger
 	// new parser
-	t := &Template{}
-	p := &parser{logger: l, tmpl: t}
+	p := &parser{logger: l, tmpl: tmpl}
 
 	lexLogger := l.SubLogger(".lexer")
 	lexLogger.Level = log.INFO
@@ -66,6 +65,6 @@ func string2Template(str string, tmpl *Template) error {
 		// eat all tokens
 	}
 
-	l.Trace("tmpl: %v", t)
+	l.Trace("tmpl: %v", tmpl)
 	return nil
 }
