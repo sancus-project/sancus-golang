@@ -121,26 +121,35 @@ func lexCaptureOption(l *lexer) stateFn {
 }
 
 // parser
-func (e *exprCapture) addToken(t *token, p *parser) bool {
+func (e *exprCapture) addToken(t *token, p *parser) (bool, error) {
 	switch t.typ {
 	case tokenIdentifier:
 		if len(e.key) == 0 && len(t.val) > 0 {
 			e.key = t.val
-			return true
+		} else {
+			s := "Capture: Identifier not accepted"
+			p.logger.Panic(s)
+
+			// this should not be reached, but well... fail.
+			return false, log.NewError(s)
 		}
 	case tokenOption:
 		s := exprLiteral{literal: t.val}
 		e.options = append(e.options, &s)
-		return true
 	case tokenRightBrace:
 		p.pop()
-		return true
+	case tokenError:
+		return false, log.NewError("%s", t)
+	default:
+		return false, log.NewError("Capture doesn't accept %s tokens", t)
 	}
-	p.logger.Panic("addToken: Capture doesn't accept %s tokens", t)
-	return false
+	return true, nil
 }
 
-func (e *exprCapture) addExpression(v expression, p *parser) bool {
-	p.logger.Panic("addExpression: Capture doesn't accept subexpressions (%s)", v)
-	return false
+func (e *exprCapture) addExpression(v expression, p *parser) (bool, error) {
+	s := "Capture doesn't accept subexpressions (%s)"
+	p.logger.Panic(s, v)
+
+	// this should not be reached, but well... fail.
+	return false, log.NewError(s, v)
 }

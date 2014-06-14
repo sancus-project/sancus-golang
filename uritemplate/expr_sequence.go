@@ -2,6 +2,7 @@ package uritemplate
 
 import (
 	"bytes"
+	"go.sancus.io/core/log"
 )
 
 type exprSequence struct {
@@ -44,7 +45,7 @@ func (e *exprSequence) push(v expression) {
 }
 
 // parser
-func (e *exprSequence) addToken(t *token, p *parser) bool {
+func (e *exprSequence) addToken(t *token, p *parser) (bool, error) {
 	switch t.typ {
 	case tokenText:
 		v := exprLiteral{literal: t.val}
@@ -54,17 +55,18 @@ func (e *exprSequence) addToken(t *token, p *parser) bool {
 		e.push(&v)
 	case tokenEOF:
 		// we are done
-		return false
+		return false, nil
 	case tokenLeftBrace:
 		v := exprCapture{}
 		p.stack.push(&v)
 	case tokenLeftBracket:
 		v := exprOptional{}
 		p.stack.push(&v)
+	case tokenError:
+		return false, log.NewError("%s", t)
 	default:
-		p.logger.Panic("addToken: Sequence doesn't accept %s tokens", t)
-		return false
+		return false, log.NewError("Sequence doesn't accept %s tokens", t)
 	}
 
-	return true
+	return true, nil
 }

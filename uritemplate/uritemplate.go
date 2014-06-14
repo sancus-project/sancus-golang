@@ -17,6 +17,6 @@ type expression interface {
 }
 
 type container interface {
-	addToken(t *token, p *parser) bool
-	addExpression(e expression, p *parser) bool
+	addToken(t *token, p *parser) (bool, error)
+	addExpression(e expression, p *parser) (bool, error)
 }

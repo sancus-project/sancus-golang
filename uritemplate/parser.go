@@ -9,13 +9,13 @@ type exprStack struct {
 	exprSequence
 }
 
-func (s *exprStack) addToken(t *token, p *parser) bool {
+func (s *exprStack) addToken(t *token, p *parser) (bool, error) {
 	if e, ok := s.last().(container); ok {
 		return e.addToken(t, p)
 	}
-	p.logger.Error("addToken: Last expression in the stack (%s) doesn't accept subexpressions",
+
+	return false, log.NewError("Last expression in the stack (%s) doesn't accept subexpressions",
 		s.last(), t)
-	return false
 }
 
 // Parser
@@ -26,14 +26,13 @@ type parser struct {
 	tmpl  *Template
 }
 
-func (p *parser) addToken(t token) bool {
+func (p *parser) addToken(t token) (bool, error) {
 	if p.stack.Len() == 0 {
 		return p.tmpl.addToken(&t, p)
 	} else if last, ok := p.stack.last().(container); ok {
 		return last.addToken(&t, p)
 	} else {
-		p.logger.Error("addToken: Unhandled token (%s) [last: %s]", t, p.stack.last())
-		return false
+		return false, log.NewError("Unhandled token (%s) [last: %s]", t, p.stack.last())
 	}
 }
 
@@ -61,10 +60,18 @@ func string2Template(str string, tmpl *Template) error {
 
 	lex := newLexer(str, lexLogger)
 
-	for p.addToken(lex.nextToken()) {
-		// eat all tokens
+	for {
+		cont, err := p.addToken(lex.nextToken())
+		if cont {
+			// eat all token
+			continue
+		}
+
+		if err == nil {
+			l.Trace("tmpl: %v", tmpl)
+		}
+		return err
 	}
 
-	l.Trace("tmpl: %v", tmpl)
 	return nil
 }
