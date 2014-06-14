@@ -13,7 +13,7 @@ func (e *exprSpecial) Type() exprType {
 func (e *exprSpecial) String() string {
 	switch e.typ {
 	case exprEOL:
-		return "EOL"
+		return "$"
 	default:
 		return "unknown"
 	}
