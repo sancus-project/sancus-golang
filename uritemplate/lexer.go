@@ -50,7 +50,7 @@ func (t token) String() string {
 	case tokenEOF:
 		return "EOF"
 	case tokenError:
-		return "Error:" + t.val
+		return "Error: " + t.val
 	case tokenText:
 		return fmt.Sprintf("LITERAL:%q", t.val)
 	case tokenIdentifier:
@@ -144,8 +144,13 @@ func (l *lexer) peek() rune {
 type stateFn func(*lexer) stateFn
 
 func (l *lexer) fail(msg string, a ...interface{}) stateFn {
+	s := " at position %v"
 	if len(a) > 0 {
+		a = append(a, l.pos)
+		msg += s
 		msg = fmt.Sprintf(msg, a...)
+	} else {
+		msg += fmt.Sprintf(s, l.pos)
 	}
 
 	l.tokens <- token{tokenError, msg}
