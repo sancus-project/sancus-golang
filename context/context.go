@@ -63,3 +63,12 @@ func NewContextMap() *ContextMap {
 		context: make(map[*http.Request]Context),
 	}
 }
+
+// ContextMiddleware removes the request from the map on exit
+func RemoveContextMiddleware(ctx *ContextMap, h http.Handler) http.Handler {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		defer ctx.RemoveAll(r)
+		h.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(f)
+}
