@@ -2,17 +2,22 @@ package dispatcher
 
 import (
 	"go.sancus.io/core/log"
+	"go.sancus.io/web/context"
 	"go.sancus.io/web/uritemplate"
 	"net/http"
 )
 
 // PathDispatcher
 type PathDispatcher struct {
-	Logger *log.Logger
+	ContextMap *context.ContextMap
+	Logger     *log.Logger
 }
 
-func NewPathDispatcher(loggerName string) *PathDispatcher {
-	return &PathDispatcher{Logger: log.GetLogger(loggerName)}
+func NewPathDispatcher(ctx *context.ContextMap, loggerName string) *PathDispatcher {
+	return &PathDispatcher{
+		ContextMap: ctx,
+		Logger:     log.GetLogger(loggerName),
+	}
 }
 
 func (d *PathDispatcher) ServeHTTP(w http.ResponseWriter, r *http.Request) {
