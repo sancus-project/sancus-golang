@@ -9,13 +9,13 @@ import (
 
 // PathDispatcher
 type PathDispatcher struct {
-	ContextMap *context.ContextMap
+	ContextMap context.RequestContextMapper
 	Logger     *log.Logger
 }
 
-func NewPathDispatcher(ctx *context.ContextMap, loggerName string) *PathDispatcher {
+func NewPathDispatcher(m context.RequestContextMapper, loggerName string) *PathDispatcher {
 	return &PathDispatcher{
-		ContextMap: ctx,
+		ContextMap: m,
 		Logger:     log.GetLogger(loggerName),
 	}
 }

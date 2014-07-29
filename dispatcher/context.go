@@ -13,7 +13,7 @@ var (
 type Arguments map[string]interface{}
 
 //
-func GetArguments(m *context.ContextMap, r *http.Request) Arguments {
+func GetArguments(m context.RequestContextMapper, r *http.Request) Arguments {
 	var args Arguments
 	label := DispatcherArgsLabel
 

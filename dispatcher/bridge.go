@@ -2,22 +2,27 @@ package dispatcher
 
 import (
 	"go.sancus.io/core/log"
+	"go.sancus.io/web/context"
 	"net/http"
 	"regexp"
 )
 
 type Bridge struct {
-	Logger *log.Logger
+	Logger     *log.Logger
+	ContextMap context.RequestContextMapper
 
 	scriptName *regexp.Regexp
 	handler    http.Handler
 }
 
-func NewBridge(scriptName string, logger string, handler http.Handler) *Bridge {
+func NewBridge(m context.RequestContextMapper, scriptName string, logger string, handler http.Handler) *Bridge {
 	var pattern string
 
 	l := log.GetLogger(logger)
-	d := &Bridge{Logger: l}
+	d := &Bridge{
+		Logger:     l,
+		ContextMap: m,
+	}
 
 	if scriptName == "" || scriptName == "/" {
 		pattern = "^()(/.*)$"
@@ -38,7 +43,7 @@ func NewBridge(scriptName string, logger string, handler http.Handler) *Bridge {
 func (d *Bridge) stripScriptName(r *http.Request) bool {
 	l := d.Logger
 
-	Prepare(r)
+	Prepare(d.ContextMap, r)
 
 	if m := d.scriptName.FindStringSubmatch(r.URL.Path); m != nil {
 		// script_name found

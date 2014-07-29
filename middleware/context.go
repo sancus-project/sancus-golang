@@ -6,7 +6,7 @@ import (
 )
 
 // ContextMiddleware removes the request from the map on exit
-func RemoveContextMiddleware(ctx *context.ContextMap, h http.Handler) http.Handler {
+func RemoveContext(ctx context.RequestContextMapper, h http.Handler) http.Handler {
 	f := func(w http.ResponseWriter, r *http.Request) {
 		defer ctx.RemoveAll(r)
 		h.ServeHTTP(w, r)

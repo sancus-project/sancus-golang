@@ -5,8 +5,6 @@ import (
 	"sync"
 )
 
-type Context map[string]interface{}
-
 type ContextMap struct {
 	sync.RWMutex
 
@@ -28,17 +26,17 @@ func (m *ContextMap) Set(r *http.Request, k string, v interface{}) {
 }
 
 // Get entries
-func (m *ContextMap) GetAll(r *http.Request) (Context, bool) {
+func (m *ContextMap) GetAll(r *http.Request) Context {
 	m.RLock()
 	defer m.RUnlock()
 
-	ctx, ok := m.context[r]
-	return ctx, ok
+	return m.context[r]
 }
 
 func (m *ContextMap) Get(r *http.Request, k string) (interface{}, bool) {
-	if ctx, ok := m.GetAll(r); ctx != nil {
-		return ctx[k], ok
+	if ctx := m.GetAll(r); ctx != nil {
+		v, ok := ctx[k]
+		return v, ok
 	}
 	return nil, false
 }
@@ -52,7 +50,7 @@ func (m *ContextMap) RemoveAll(r *http.Request) {
 }
 
 func (m *ContextMap) Remove(r *http.Request, k string) {
-	if ctx, _ := m.GetAll(r); ctx != nil {
+	if ctx := m.GetAll(r); ctx != nil {
 		delete(ctx, k)
 	}
 }
