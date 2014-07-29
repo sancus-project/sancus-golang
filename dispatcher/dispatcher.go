@@ -29,10 +29,8 @@ func Path(m context.RequestContextMapper, r *http.Request, path string, a ...int
 		path = fmt.Sprintf(path, a)
 	}
 
-	if v, ok := GetArguments(m, r)["SCRIPT_NAME"]; ok {
-		if str, ok := v.(string); ok && len(str) > 0 {
-			path = str + path
-		}
+	if str := GetStringArgument(m, r, "SCRIPT_NAME", ""); len(str) > 0 {
+		path = str + path
 	}
 
 	return path
