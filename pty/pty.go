@@ -14,7 +14,7 @@ func Open() (master, slave *os.File, err error) {
 		return nil, nil, err
 	}
 
-	pts_name, err := ptsname(ptm)
+	ptsName, err := ptsname(ptm)
 	if err != nil {
 		ptm.Close()
 		return nil, nil, err
@@ -26,7 +26,7 @@ func Open() (master, slave *os.File, err error) {
 		return nil, nil, err
 	}
 
-	pts, err := os.OpenFile(pts_name, os.O_RDWR|syscall.O_NOCTTY, 0)
+	pts, err := os.OpenFile(ptsName, os.O_RDWR|syscall.O_NOCTTY, 0)
 	if err != nil {
 		ptm.Close()
 		return nil, nil, err
