@@ -8,43 +8,46 @@ import (
 	"unsafe"
 )
 
-func Open() (master, slave *os.File, err error) {
-	ptm, err := os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
+func Open() (pty, pts *os.File, err error) {
+	var ptsName string
+
+	pty, err = os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	if err != nil {
-		return nil, nil, err
+		goto fail_open_pty
 	}
 
-	ptsName, err := ptsname(ptm)
+	ptsName, err = ptsname(pty)
 	if err != nil {
-		ptm.Close()
-		return nil, nil, err
+		goto fail
 	}
 
-	err = unlockpt(ptm)
+	err = unlockpt(pty)
 	if err != nil {
-		ptm.Close()
-		return nil, nil, err
+		goto fail
 	}
 
-	pts, err := os.OpenFile(ptsName, os.O_RDWR|syscall.O_NOCTTY, 0)
+	pts, err = os.OpenFile(ptsName, os.O_RDWR|syscall.O_NOCTTY, 0)
 	if err != nil {
-		ptm.Close()
-		return nil, nil, err
+		goto fail
 	}
 
-	return ptm, pts, nil
+	return pty, pts, nil
+fail:
+	pty.Close()
+fail_open_pty:
+	return nil, nil, err
 }
 
-func ptsname(ptm *os.File) (string, error) {
+func ptsname(pty *os.File) (string, error) {
 	var n C.uint
-	err := ioctl(ptm.Fd(), syscall.TIOCGPTN, uintptr(unsafe.Pointer(&n)))
+	err := ioctl(pty.Fd(), syscall.TIOCGPTN, uintptr(unsafe.Pointer(&n)))
 	if err != nil {
 		return "", err
 	}
 	return fmt.Sprintf("/dev/pts/%d", n), nil
 }
 
-func unlockpt(ptm *os.File) error {
+func unlockpt(pty *os.File) error {
 	var n C.uint
-	return ioctl(ptm.Fd(), syscall.TIOCSPTLCK, uintptr(unsafe.Pointer(&n)))
+	return ioctl(pty.Fd(), syscall.TIOCSPTLCK, uintptr(unsafe.Pointer(&n)))
 }
