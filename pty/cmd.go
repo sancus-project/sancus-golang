@@ -9,11 +9,11 @@ import (
 func StartCommand(name string, arg ...string) (*os.File, error) {
 	c := exec.Command(name, arg...)
 
-	return StartCmd(c)
+	return StartCmd(nil, nil, c)
 }
 
-func StartCmd(c *exec.Cmd) (*os.File, error) {
-	pty, pts, err := Open(nil, nil)
+func StartCmd(termp *syscall.Termios, winp *Winsize, c *exec.Cmd) (*os.File, error) {
+	pty, pts, err := Open(termp, winp)
 	if err != nil {
 		return nil, err
 	}
