@@ -6,10 +6,12 @@ import (
 	"syscall"
 )
 
-func StartCommand(name string, arg ...string) (*os.File, error) {
+func StartCommand(termp *syscall.Termios, winp *Winsize,
+	name string, arg ...string) (*os.File, error) {
+
 	c := exec.Command(name, arg...)
 
-	return StartCmd(nil, nil, c)
+	return StartCmd(termp, winp, c)
 }
 
 func StartCmd(termp *syscall.Termios, winp *Winsize, c *exec.Cmd) (*os.File, error) {
