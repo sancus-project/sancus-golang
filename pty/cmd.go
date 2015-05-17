@@ -13,7 +13,7 @@ func StartCommand(name string, arg ...string) (*os.File, error) {
 }
 
 func StartCmd(c *exec.Cmd) (*os.File, error) {
-	pty, pts, err := Open()
+	pty, pts, err := Open(nil, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -8,14 +8,16 @@ import (
 	"unsafe"
 )
 
-func Open() (pty, pts *os.File, err error) {
+func Open(termp *syscall.Termios, winp *Winsize) (pty, pts *os.File, err error) {
 	var ptsName string
 
+	// open pty master
 	pty, err = os.OpenFile("/dev/ptmx", os.O_RDWR, 0)
 	if err != nil {
 		goto fail_open_pty
 	}
 
+	// open pty slave
 	ptsName, err = ptsname(pty)
 	if err != nil {
 		goto fail
@@ -31,7 +33,20 @@ func Open() (pty, pts *os.File, err error) {
 		goto fail
 	}
 
-	return pty, pts, nil
+	// configure pts
+	if termp != nil {
+		err = tcsetattr(pts, termp)
+	}
+
+	if err == nil && winp != nil {
+		err = SetWinSize(pts, winp)
+	}
+
+	if err == nil {
+		return pty, pts, nil
+	}
+
+	pts.Close()
 fail:
 	pty.Close()
 fail_open_pty:
@@ -50,4 +65,8 @@ func ptsname(pty *os.File) (string, error) {
 func unlockpt(pty *os.File) error {
 	var n C.uint
 	return ioctl(pty.Fd(), syscall.TIOCSPTLCK, uintptr(unsafe.Pointer(&n)))
+}
+
+func tcsetattr(pts *os.File, termp *syscall.Termios) error {
+	return ioctl(pts.Fd(), syscall.TCSETS, uintptr(unsafe.Pointer(termp)))
 }
