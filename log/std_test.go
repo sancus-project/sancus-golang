@@ -15,10 +15,7 @@ func streq(t *testing.T, wants, got string) {
 func TestStdLogger(t *testing.T) {
 	var buf strings.Builder
 
-	logger := &Logger{
-		prefix: "test_prefix: ",
-	}
-
+	logger := New("test_prefix: ")
 	logger.SetOutput(&buf).SetStandard()
 
 	// single
