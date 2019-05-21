@@ -5,9 +5,9 @@ import (
 )
 
 // Turn *Logger into the output backend of the standard Go logger
-func (self *Logger) SetStandard() *Logger {
-	log.SetOutput(self)
+func (logger *Logger) SetStandard() *Logger {
+	log.SetOutput(logger)
 	log.SetFlags(0)
 
-	return self
+	return logger
 }

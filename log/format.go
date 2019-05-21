@@ -16,7 +16,7 @@ func deeper(depth int) int {
 }
 
 // FormatBytes formats a multiline []byte
-func (self *Logger) FormatBytes(calldepth int, prefix string, data []byte) []string {
+func (logger *Logger) FormatBytes(calldepth int, prefix string, data []byte) []string {
 	var lines []string
 
 	for _, s := range bytes.Split(data, []byte{'\n'}) {
@@ -24,11 +24,11 @@ func (self *Logger) FormatBytes(calldepth int, prefix string, data []byte) []str
 		lines = append(lines, string(s))
 	}
 
-	return self.FormatLines(deeper(calldepth), prefix, lines)
+	return logger.FormatLines(deeper(calldepth), prefix, lines)
 }
 
 // Format formats a multiline string
-func (self *Logger) Format(calldepth int, prefix string, data string) []string {
+func (logger *Logger) Format(calldepth int, prefix string, data string) []string {
 	var lines []string
 
 	for _, s := range strings.Split(data, "\n") {
@@ -36,13 +36,13 @@ func (self *Logger) Format(calldepth int, prefix string, data string) []string {
 		lines = append(lines, s)
 	}
 
-	return self.FormatLines(deeper(calldepth), prefix, lines)
+	return logger.FormatLines(deeper(calldepth), prefix, lines)
 }
 
 // FormatLines formats an array of string lines
-func (self *Logger) FormatLines(calldepth int, prefix string, lines []string) []string {
-	self.mu.Lock()
-	defer self.mu.Unlock()
+func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) []string {
+	logger.mu.Lock()
+	defer logger.mu.Unlock()
 
 	// remove trailing empty lines
 	i := len(lines)
@@ -56,7 +56,7 @@ func (self *Logger) FormatLines(calldepth int, prefix string, lines []string) []
 	lines = lines[:i]
 
 	// compose prefix
-	prefix = formatPrefix(deeper(calldepth), self.prefix, prefix)
+	prefix = formatPrefix(deeper(calldepth), logger.prefix, prefix)
 	if len(prefix) > 0 {
 		if len(lines) > 0 {
 			for i, s := range lines {
