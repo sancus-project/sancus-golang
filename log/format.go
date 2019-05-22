@@ -41,8 +41,8 @@ func (logger *Logger) Format(calldepth int, prefix string, data string) []string
 
 // FormatLines formats an array of string lines
 func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) []string {
-	logger.mu.Lock()
-	defer logger.mu.Unlock()
+	logger.ctx.Lock()
+	defer logger.ctx.Unlock()
 
 	// remove trailing empty lines
 	i := len(lines)

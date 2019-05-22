@@ -1,6 +1,7 @@
 package log
 
 import (
+	"io"
 	"log"
 	"strings"
 	"testing"
@@ -12,11 +13,18 @@ func streq(t *testing.T, wants, got string) {
 	}
 }
 
+func newTestLogger(prefix string, flags uint, w io.Writer) *Logger {
+	ctx := NewLoggerContext(flags)
+	ctx.SetBackend(w)
+	return ctx.NewLogger(prefix)
+}
+
 func TestStdLogger(t *testing.T) {
 	var buf strings.Builder
 
-	logger := New("test_prefix: ")
-	logger.SetOutput(&buf).SetStandard()
+	logger := newTestLogger("test_prefix: ", Lnoprefix, &buf)
+
+	logger.SetStandard()
 
 	// single
 	log.Printf("test:%v", 1)
