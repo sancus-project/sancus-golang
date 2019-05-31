@@ -3,6 +3,12 @@ package log
 const (
 	Lnoprefix = 1 << iota
 
+	Lshortfile
+	Llongfile
+	Lfileline
+	Lpackage
+	Lfunc
+
 	Lstdflags = Lnoprefix
 )
 

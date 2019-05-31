@@ -3,6 +3,7 @@ package log
 import (
 	"bytes"
 	"fmt"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
@@ -56,7 +57,8 @@ func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) 
 	lines = lines[:i]
 
 	// compose prefix
-	prefix = formatPrefix(deeper(calldepth), logger.prefix, prefix)
+	flags := logger.ctx.Flags()
+	prefix = formatPrefix(deeper(calldepth), flags, logger.prefix, prefix)
 	if len(prefix) > 0 {
 		if len(lines) > 0 {
 			for i, s := range lines {
@@ -75,19 +77,54 @@ func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) 
 	return lines
 }
 
-func formatPrefix(calldepth int, p0, p1 string) string {
+func formatPrefix(calldepth int, flags uint, p0, p1 string) string {
 	var b strings.Builder
 
 	b.WriteString(p0) // logger prefix
 	b.WriteString(p1) // context prefix
 
 	// file and function
-	if calldepth > 0 {
+	if calldepth > 0 && flags&(Lshortfile|Llongfile|Lfileline|Lpackage|Lfunc) != 0 {
 		if pc, fileName, fileLine, ok := runtime.Caller(calldepth + 1); ok {
-			if fn := runtime.FuncForPC(pc); fn != nil {
-				pos := b.Len()
+			var fnName string
 
-				b.WriteString(fn.Name())
+			// reduce fileName
+			if flags&Lshortfile != 0 {
+				fileName = filepath.Base(fileName)
+			} else if flags&Llongfile == 0 {
+				fileName = ""
+			}
+
+			// reduce fileLine
+			if flags&Lfileline == 0 {
+				fileLine = 0
+			}
+
+			// function
+			if flags&(Lpackage|Lfunc) != 0 {
+				if fn := runtime.FuncForPC(pc); fn != nil {
+					fnName = fn.Name()
+
+					// reduce fnName
+					if flags&Lpackage == 0 {
+						// no Lpackage, only include the function name
+						fnName = filepath.Ext(fnName)[1:]
+					} else if flags&Lfunc == 0 {
+						// no Lfunc, remove the function name
+						if ext := filepath.Ext(fnName); len(ext) > 0 {
+							l := len(fnName) - len(ext)
+							fnName = fnName[:l]
+						}
+					}
+				}
+			}
+
+			// capture buffer position to detect changes
+			pos := b.Len()
+
+			if len(fnName) > 0 {
+				b.WriteString(fnName)
+
 				if len(fileName) > 0 {
 					if fileLine > 0 {
 						b.WriteString(fmt.Sprintf(" (%s:%v)", fileName, fileLine))
@@ -97,10 +134,19 @@ func formatPrefix(calldepth int, p0, p1 string) string {
 				} else if fileLine > 0 {
 					b.WriteString(fmt.Sprintf(":%v", fileLine))
 				}
-
-				if b.Len() > pos {
-					b.WriteRune(':')
+			} else if len(fileName) > 0 {
+				if fileLine > 0 {
+					b.WriteString(fmt.Sprintf("%s:%v", fileName, fileLine))
+				} else {
+					b.WriteString(fmt.Sprintf("%s", fileName))
 				}
+			} else if fileLine > 0 {
+				b.WriteString(fmt.Sprintf(":%v", fileLine))
+			}
+
+			// and if we wrote anything, add a delimiter.
+			if b.Len() > pos {
+				b.WriteRune(':')
 			}
 		}
 	}
