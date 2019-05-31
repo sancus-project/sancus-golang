@@ -1,4 +1,4 @@
-package log // import "github.com/amery/go-misc/log"
+package log // import "go.sancus.dev/core/log"
 
 import (
 	"github.com/kr/pretty"
