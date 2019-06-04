@@ -3,6 +3,12 @@ package log
 const (
 	Lnoprefix = 1 << iota
 
+	Ldate
+	Ltime
+	Lseconds
+	Lmicroseconds
+	LUTC
+
 	Lshortfile
 	Llongfile
 	Lfileline
@@ -13,7 +19,7 @@ const (
 	Land
 	Lnot
 
-	Lstdflags = Lnoprefix
+	Lstdflags = Ldate | Ltime
 )
 
 func apply_flags(old, flags uint) uint {

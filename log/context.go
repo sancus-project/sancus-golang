@@ -9,6 +9,7 @@ type LoggerContext struct {
 	mu      sync.Mutex
 	flags   uint
 	backend io.Writer
+	timectx TimeContext
 }
 
 func NewLoggerContext(flags uint) *LoggerContext {
@@ -21,6 +22,21 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 	return &Logger{
 		prefix: prefix,
 		ctx:    ctx,
+	}
+}
+
+//
+//
+func (ctx *LoggerContext) SetTimeContext(tctx TimeContext) *LoggerContext {
+	ctx.timectx = tctx
+	return ctx
+}
+
+func (ctx *LoggerContext) TimeContext() TimeContext {
+	if ctx.timectx == nil {
+		return StdTimeContext
+	} else {
+		return ctx.timectx
 	}
 }
 
