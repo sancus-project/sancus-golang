@@ -8,18 +8,20 @@ import (
 
 type TimeContext interface {
 	Now() time.Time
+	StartTime() time.Time
 	LastWrite() time.Time
 	SetLastWrite(time.Time)
 }
 
 // writeTimestamp writes a timestamp according to flags and TimeContext
 func writeTimestamp(w *bufio.Writer, flags uint, tctx TimeContext) {
-	if flags&(Ldate|Ltime|Lseconds) != 0 {
+	if flags&(Ldate|Ltime|Lseconds|Lrelative) != 0 {
 		var use_seconds bool
 		var use_elapsed bool
+		var use_relative bool
 
 		var accuracy int
-		var dmin, elapsed time.Duration
+		var dmin, elapsed, relative time.Duration
 
 		if flags&Lmicroseconds != 0 {
 			accuracy = 6
@@ -38,17 +40,40 @@ func writeTimestamp(w *bufio.Writer, flags uint, tctx TimeContext) {
 			}
 		}
 
+		if flags&Lrelative != 0 {
+			use_relative = true
+		}
+
 		if flags&Lseconds != 0 {
 			use_seconds = true
 		}
 
 		tctx.SetLastWrite(now)
-		if flags&LUTC != 0 {
+		if use_relative {
+			relative = now.Sub(tctx.StartTime()).Round(dmin)
+		} else if flags&LUTC != 0 {
 			now = now.UTC()
 		}
 
 		w.WriteRune('[')
-		if use_seconds {
+		if use_relative {
+			// Relative to application start
+			var sec = int(relative / time.Second)
+			var subsec = int(relative%time.Second) / int(dmin)
+
+			if use_seconds {
+				w.WriteString(fmt.Sprintf("%v.%0*v", sec, accuracy, subsec))
+			} else {
+				var hour, min int
+
+				min = sec / 60
+				hour = min / 60
+				min = min % 60
+				sec = sec % 60
+
+				w.WriteString(fmt.Sprintf("%02v:%02v:%02v.%0*v", hour, min, sec, accuracy, subsec))
+			}
+		} else if use_seconds {
 			// Seconds
 			var sec = now.Unix()
 			var subsec = now.Nanosecond() / int(dmin)
@@ -88,11 +113,16 @@ func writeTimestamp(w *bufio.Writer, flags uint, tctx TimeContext) {
 //
 //
 type wallTimeContext struct {
+	startTime time.Time // relative
 	lastWrite time.Time // elapsed
 }
 
 func (wallTimeContext) Now() time.Time {
 	return time.Now()
+}
+
+func (tctx *wallTimeContext) StartTime() time.Time {
+	return tctx.startTime
 }
 
 func (tctx *wallTimeContext) LastWrite() time.Time {
@@ -103,4 +133,6 @@ func (tctx *wallTimeContext) SetLastWrite(t time.Time) {
 	tctx.lastWrite = t
 }
 
-var StdTimeContext TimeContext = &wallTimeContext{}
+var StdTimeContext TimeContext = &wallTimeContext{
+	startTime: time.Now(),
+}

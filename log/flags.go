@@ -7,6 +7,7 @@ const (
 	Ltime
 	Lseconds
 	Lelapsed
+	Lrelative
 	Lmicroseconds
 	LUTC
 
