@@ -1,4 +1,4 @@
-package log // import "go.sancus.dev/core/log"
+package log // import "go.sancus.dev/sancus/log"
 
 import (
 	"github.com/kr/pretty"
