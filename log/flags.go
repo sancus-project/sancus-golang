@@ -6,6 +6,7 @@ const (
 	Ldate
 	Ltime
 	Lseconds
+	Lelapsed
 	Lmicroseconds
 	LUTC
 
