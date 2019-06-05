@@ -5,12 +5,12 @@ import (
 )
 
 // WriteLines writes log lines
-func (logger *Logger) WriteLines(lines []string) error {
-	return logger.ctx.WriteLines(lines, logger.Flags())
+func (logger *Logger) WriteLines(v Variant, lines []string) error {
+	return logger.ctx.WriteLines(v, lines, logger.Flags())
 }
 
 // WriteLines writes log lines
-func (ctx *LoggerContext) WriteLines(lines []string, flags uint) error {
+func (ctx *LoggerContext) WriteLines(v Variant, lines []string, flags uint) error {
 	ctx.mu.Lock()
 	defer ctx.mu.Unlock()
 

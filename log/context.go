@@ -10,11 +10,15 @@ type LoggerContext struct {
 	flags   uint
 	backend io.Writer
 	timectx TimeContext
+
+	defaultVariant Variant
+	variants       map[Variant]loggerVariant
 }
 
 func NewLoggerContext(flags uint) *LoggerContext {
 	return &LoggerContext{
-		flags: apply_flags(0, flags),
+		flags:    apply_flags(0, flags),
+		variants: make(map[Variant]loggerVariant),
 	}
 }
 

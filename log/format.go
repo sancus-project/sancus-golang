@@ -17,7 +17,7 @@ func deeper(depth int) int {
 }
 
 // FormatBytes formats a multiline []byte
-func (logger *Logger) FormatBytes(calldepth int, prefix string, data []byte) []string {
+func (logger *Logger) FormatBytes(calldepth int, v Variant, prefix string, data []byte) []string {
 	var lines []string
 
 	for _, s := range bytes.Split(data, []byte{'\n'}) {
@@ -25,11 +25,11 @@ func (logger *Logger) FormatBytes(calldepth int, prefix string, data []byte) []s
 		lines = append(lines, string(s))
 	}
 
-	return logger.FormatLines(deeper(calldepth), prefix, lines)
+	return logger.FormatLines(deeper(calldepth), v, prefix, lines)
 }
 
 // Format formats a multiline string
-func (logger *Logger) Format(calldepth int, prefix string, data string) []string {
+func (logger *Logger) Format(calldepth int, v Variant, prefix string, data string) []string {
 	var lines []string
 
 	for _, s := range strings.Split(data, "\n") {
@@ -37,11 +37,11 @@ func (logger *Logger) Format(calldepth int, prefix string, data string) []string
 		lines = append(lines, s)
 	}
 
-	return logger.FormatLines(deeper(calldepth), prefix, lines)
+	return logger.FormatLines(deeper(calldepth), v, prefix, lines)
 }
 
 // FormatLines formats an array of string lines
-func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) []string {
+func (logger *Logger) FormatLines(calldepth int, v Variant, p2 string, lines []string) []string {
 	logger.ctx.Lock()
 	defer logger.ctx.Unlock()
 
@@ -57,8 +57,8 @@ func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) 
 	lines = lines[:i]
 
 	// compose prefix
-	flags := logger.Flags()
-	prefix = formatPrefix(deeper(calldepth), flags, logger.prefix, prefix)
+	p0, flags := logger.ctx.GetVariantPrefixFlags(v, logger.Flags())
+	prefix := formatPrefix(deeper(calldepth), flags, p0, logger.prefix, p2)
 	if len(prefix) > 0 {
 		if len(lines) > 0 {
 			for i, s := range lines {
@@ -77,11 +77,12 @@ func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) 
 	return lines
 }
 
-func formatPrefix(calldepth int, flags uint, p0, p1 string) string {
+func formatPrefix(calldepth int, flags uint, p0, p1, p2 string) string {
 	var b strings.Builder
 
-	b.WriteString(p0) // logger prefix
-	b.WriteString(p1) // context prefix
+	b.WriteString(p0) // variant prefix
+	b.WriteString(p1) // logger prefix
+	b.WriteString(p2) // local prefix
 
 	// file and function
 	if calldepth > 0 && flags&(Lshortfile|Llongfile|Lfileline|Lpackage|Lfunc) != 0 {
