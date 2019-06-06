@@ -44,4 +44,3 @@ func (m MethodNotAllowed) String() string {
 func (m MethodNotAllowed) Error() string {
 	return fmt.Sprintf("Allow: %s", strings.Join(m.methods, ", "))
 }
-
