@@ -60,25 +60,25 @@ func MethodHandler(h interface{}) http.Handler {
 	// GET
 	if o, ok := h.(GetHandler); ok {
 		get = o
-		m.addMethodHandlerFunc("GET", o.Get)
+		m.addMethodHandlerFunc(http.MethodGet, o.Get)
 	}
 	// HEAD
 	if o, ok := h.(HeadHandler); ok {
-		m.addMethodHandlerFunc("HEAD", o.Head)
+		m.addMethodHandlerFunc(http.MethodHead, o.Head)
 	} else if get != nil {
-		m.addMethodHandlerFunc("HEAD", get.Get)
+		m.addMethodHandlerFunc(http.MethodHead, get.Get)
 	}
 	// POST
 	if o, ok := h.(PostHandler); ok {
-		m.addMethodHandlerFunc("POST", o.Post)
+		m.addMethodHandlerFunc(http.MethodPost, o.Post)
 	}
 	// PUT
 	if o, ok := h.(PutHandler); ok {
-		m.addMethodHandlerFunc("PUT", o.Put)
+		m.addMethodHandlerFunc(http.MethodPut, o.Put)
 	}
 	// DELETE
 	if o, ok := h.(DeleteHandler); ok {
-		m.addMethodHandlerFunc("DELETE", o.Delete)
+		m.addMethodHandlerFunc(http.MethodDelete o.Delete)
 	}
 
 	return m
