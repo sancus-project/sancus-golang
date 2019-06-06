@@ -2,7 +2,6 @@ package log
 
 import (
 	"io"
-	"os"
 	"sync"
 )
 
@@ -22,23 +21,6 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 	return &Logger{
 		prefix: prefix,
 		ctx:    ctx,
-	}
-}
-
-//
-//
-var defaultBackend io.Writer = os.Stderr
-
-func (ctx *LoggerContext) SetBackend(w io.Writer) *LoggerContext {
-	ctx.backend = w
-	return ctx
-}
-
-func (ctx *LoggerContext) Backend() io.Writer {
-	if ctx.backend == nil {
-		return defaultBackend
-	} else {
-		return ctx.backend
 	}
 }
 
