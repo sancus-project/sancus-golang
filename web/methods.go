@@ -20,8 +20,16 @@ type PutHandler interface {
 	Put(http.ResponseWriter, *http.Request)
 }
 
+type PatchHandler interface {
+	Patch(http.ResponseWriter, *http.Request)
+}
+
 type DeleteHandler interface {
 	Delete(http.ResponseWriter, *http.Request)
+}
+
+type ConnectHandler interface {
+	Connect(http.ResponseWriter, *http.Request)
 }
 
 // MethodHandler
@@ -76,9 +84,17 @@ func MethodHandler(h interface{}) http.Handler {
 	if o, ok := h.(PutHandler); ok {
 		m.addMethodHandlerFunc(http.MethodPut, o.Put)
 	}
+	// PATCH
+	if o, ok := h.(PatchHandler); ok {
+		m.addMethodHandlerFunc(http.MethodPatch, o.Patch)
+	}
 	// DELETE
 	if o, ok := h.(DeleteHandler); ok {
-		m.addMethodHandlerFunc(http.MethodDelete o.Delete)
+		m.addMethodHandlerFunc(http.MethodDelete, o.Delete)
+	}
+	// CONNECT
+	if o, ok := h.(ConnectHandler); ok {
+		m.addMethodHandlerFunc(http.MethodConnect, o.Connect)
 	}
 
 	return m
