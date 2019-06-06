@@ -1,9 +1,7 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 )
 
 type GetHandler interface {
@@ -32,32 +30,25 @@ type methodHandler struct {
 	handler []http.HandlerFunc
 }
 
-// MethodHandler as generic error
-func (m methodHandler) Error() string {
-	return fmt.Sprintf("Allow: %s", strings.Join(m.methods, ", "))
-}
-
-// MethodHandler as MethodNotAllowed error
-func (m methodHandler) Methods() []string {
-	return m.methods
-}
-
 // MethodHandler as http.Handler
 func (m methodHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r != nil {
 		for i, k := range m.methods {
 			if k == r.Method {
-				m.handler[i](w, r)
+				m.handler[i].ServeHTTP(w, r)
 				return
 			}
 		}
 	}
 
-	panic(m) // 405
+	// 405
+	panic(MethodNotAllowed{
+		methods: m.methods[:],
+	})
 }
 
 // MethodHandler constructor
-func (m methodHandler) addMethodHandlerFunc(method string, h http.HandlerFunc) {
+func (m *methodHandler) addMethodHandlerFunc(method string, h http.HandlerFunc) {
 	m.methods = append(m.methods, method)
 	m.handler = append(m.handler, h)
 }
