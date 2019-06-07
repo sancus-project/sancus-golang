@@ -21,6 +21,8 @@ const (
 	Land
 	Lnot
 
+	Lvariants
+
 	Lstdflags = Ldate | Ltime
 )
 

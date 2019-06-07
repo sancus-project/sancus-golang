@@ -4,6 +4,11 @@ package log
 func (logger *Logger) Write(data []byte) (int, error) {
 	v := logger.DefaultVariant()
 
+	if !(logger.VariantEnabled(v)) {
+		// DefaultVariant disabled
+		return 0, nil
+	}
+
 	depth := 0 // disable call stack info
 	prefix := ""
 

@@ -11,6 +11,11 @@ func (logger *Logger) WriteLines(v Variant, lines []string) error {
 
 // WriteLines writes log lines
 func (ctx *LoggerContext) WriteLines(v Variant, lines []string, flags uint) error {
+	if !ctx.VariantEnabled(v, flags) {
+		// Variant disabled
+		return nil
+	}
+
 	ctx.mu.Lock()
 	defer ctx.mu.Unlock()
 

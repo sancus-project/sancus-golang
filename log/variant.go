@@ -88,3 +88,20 @@ func (ctx *LoggerContext) GetVariantPrefixFlags(k Variant, flags uint) (string, 
 		return "", flags
 	}
 }
+
+// VariantEnabled
+func (logger *Logger) VariantEnabled(k Variant) bool {
+	return logger.ctx.VariantEnabled(k, logger.Flags())
+}
+
+func (ctx *LoggerContext) VariantEnabled(k Variant, mask uint) bool {
+	if mask == 0 {
+		mask = ctx.Flags()
+	}
+
+	n := uint(k)
+	if n == 0 || k == ctx.errorVariant || (n >= Lvariants && (n&mask) == n) {
+		return true
+	}
+	return false
+}
