@@ -30,6 +30,12 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 	}
 }
 
+func (logger *Logger) New(prefix string) *Logger {
+	p := logger.ctx.NewLogger(logger.prefix + prefix)
+	p.flags = logger.flags
+	return p
+}
+
 //
 //
 func (ctx *LoggerContext) SetTimeContext(tctx TimeContext) *LoggerContext {
