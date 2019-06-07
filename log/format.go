@@ -57,7 +57,7 @@ func (logger *Logger) FormatLines(calldepth int, prefix string, lines []string) 
 	lines = lines[:i]
 
 	// compose prefix
-	flags := logger.ctx.Flags()
+	flags := logger.Flags()
 	prefix = formatPrefix(deeper(calldepth), flags, logger.prefix, prefix)
 	if len(prefix) > 0 {
 		if len(lines) > 0 {

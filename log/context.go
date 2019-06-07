@@ -26,18 +26,6 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 
 //
 //
-func (ctx *LoggerContext) SetFlags(flags uint) *LoggerContext {
-	ctx.flags = apply_flags(ctx.flags, flags)
-
-	return ctx
-}
-
-func (ctx *LoggerContext) Flags() uint {
-	return ctx.flags
-}
-
-//
-//
 func (ctx *LoggerContext) Lock() {
 	ctx.mu.Lock()
 }

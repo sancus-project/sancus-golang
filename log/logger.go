@@ -8,6 +8,7 @@ import (
 
 type Logger struct {
 	prefix string
+	flags  uint
 	ctx    *LoggerContext
 }
 
