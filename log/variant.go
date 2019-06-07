@@ -28,6 +28,26 @@ func (ctx *LoggerContext) DefaultVariant() Variant {
 	return ctx.defaultVariant
 }
 
+// SetErrorVariant
+func (logger *Logger) SetErrorVariant(v Variant) *Logger {
+	logger.ctx.SetErrorVariant(v)
+	return logger
+}
+
+func (ctx *LoggerContext) SetErrorVariant(v Variant) *LoggerContext {
+	ctx.errorVariant = v
+	return ctx
+}
+
+// ErrorVariant
+func (logger *Logger) ErrorVariant() Variant {
+	return logger.ctx.ErrorVariant()
+}
+
+func (ctx *LoggerContext) ErrorVariant() Variant {
+	return ctx.errorVariant
+}
+
 // SetVariant
 func (logger *Logger) SetVariant(k Variant, prefix string, flags uint) *Logger {
 	logger.ctx.SetVariant(k, prefix, flags)

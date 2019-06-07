@@ -12,6 +12,7 @@ type LoggerContext struct {
 	timectx TimeContext
 
 	defaultVariant Variant
+	errorVariant   Variant
 	variants       map[Variant]loggerVariant
 }
 

@@ -18,6 +18,11 @@ func (l *Logger) Print(args ...interface{}) error {
 	return l.Output(1, v, args...)
 }
 
+func (l *Logger) Error(args ...interface{}) error {
+	v := l.ErrorVariant()
+	return l.Output(1, v, args...)
+}
+
 func (l *Logger) Output(calldepth int, v Variant, args ...interface{}) error {
 	var s string
 	if len(args) > 0 {
@@ -59,6 +64,11 @@ func (l *Logger) OutputPretty2(calldepth int, v Variant, p string, args ...inter
 // fmt.Sprintf
 func (l *Logger) Printf(fmt string, args ...interface{}) error {
 	v := l.DefaultVariant()
+	return l.Outputf(1, v, fmt, args...)
+}
+
+func (l *Logger) Errorf(fmt string, args ...interface{}) error {
+	v := l.ErrorVariant()
 	return l.Outputf(1, v, fmt, args...)
 }
 
