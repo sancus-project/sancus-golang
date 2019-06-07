@@ -105,3 +105,12 @@ func (l *Logger) OutputPrettyf2(calldepth int, v Variant, p string, s string, ar
 	}
 	return l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
 }
+
+// Fatal logs an error and then panics
+func (l *Logger) Fatal(err error) {
+	if err != nil {
+		v := l.ErrorVariant()
+		l.Output(1, v, err)
+		panic(err)
+	}
+}
