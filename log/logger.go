@@ -4,7 +4,7 @@ import (
 	"github.com/kr/pretty"
 
 	"fmt"
-	"strings"
+	"os"
 )
 
 type Logger struct {
@@ -13,44 +13,27 @@ type Logger struct {
 	ctx    *LoggerContext
 }
 
-// fmt.Sprint
+// Print is equivalent to fmt.Sprint() using the DefaultVariant of the logger
 func (l *Logger) Print(args ...interface{}) error {
-	v := l.DefaultVariant()
-	return l.Output(1, v, args...)
+	return l.Output2(1, l.DefaultVariant(), "", args...)
 }
 
+// Error is equivalent to fmt.Sprint() using the ErrorVariant of the logger
 func (l *Logger) Error(args ...interface{}) error {
-	v := l.ErrorVariant()
-	return l.Output(1, v, args...)
+	return l.Output2(1, l.ErrorVariant(), "", args...)
 }
 
+// Fatal is equivalent to Error() followed by a call to os.Exit(1)
 func (l *Logger) Fatal(args ...interface{}) {
-	v := l.ErrorVariant()
-	var s string
-
-	if len(args) > 0 {
-		s = fmt.Sprint(args...)
-	}
-
-	lines := l.Format(1, v, "", s)
-	l.WriteLines(v, lines)
-	panic(strings.Join(lines, "\n"))
+	l.OutputFatal2(1, l.ErrorVariant(), "", args...)
 }
 
+// Output is equivalent to fmt.Sprint() when the given variant is enabled
 func (l *Logger) Output(calldepth int, v Variant, args ...interface{}) error {
-	var s string
-
-	if !l.VariantEnabled(v) {
-		return nil
-	}
-
-	if len(args) > 0 {
-		s = fmt.Sprint(args...)
-	}
-
-	return l.WriteLines(v, l.Format(deeper(calldepth), v, "", s))
+	return l.Output2(deeper(calldepth), v, "", args...)
 }
 
+// Output2 is equivalent to fmt.Sprint() with a given prefix when the given variant is enabled
 func (l *Logger) Output2(calldepth int, v Variant, p string, args ...interface{}) error {
 	var s string
 
@@ -65,24 +48,25 @@ func (l *Logger) Output2(calldepth int, v Variant, p string, args ...interface{}
 	return l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
 }
 
+// OutputFatal2 is an unconditional equivalent to Output2() followed by a call to os.Exit(1)
+func (l *Logger) OutputFatal2(calldepth int, v Variant, p string, args ...interface{}) {
+	var s string
+
+	if len(args) > 0 {
+		s = fmt.Sprint(args...)
+	}
+
+	l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+	os.Exit(1)
+}
+
 // pretty.Sprint
 func (l *Logger) PrettyPrint(args ...interface{}) error {
-	v := l.DefaultVariant()
-	return l.OutputPretty(1, v, args...)
+	return l.OutputPretty2(1, l.DefaultVariant(), "", args...)
 }
 
 func (l *Logger) OutputPretty(calldepth int, v Variant, args ...interface{}) error {
-	var s string
-
-	if !l.VariantEnabled(v) {
-		return nil
-	}
-
-	if len(args) > 0 {
-		s = pretty.Sprint(args...)
-	}
-
-	return l.WriteLines(v, l.Format(deeper(calldepth), v, "", s))
+	return l.OutputPretty2(deeper(calldepth), v, "", args...)
 }
 
 func (l *Logger) OutputPretty2(calldepth int, v Variant, p string, args ...interface{}) error {
@@ -101,37 +85,20 @@ func (l *Logger) OutputPretty2(calldepth int, v Variant, p string, args ...inter
 
 // fmt.Sprintf
 func (l *Logger) Printf(fmt string, args ...interface{}) error {
-	v := l.DefaultVariant()
-	return l.Outputf(1, v, fmt, args...)
+	return l.Outputf2(1, l.DefaultVariant(), "", fmt, args...)
 }
 
 func (l *Logger) Errorf(fmt string, args ...interface{}) error {
-	v := l.ErrorVariant()
-	return l.Outputf(1, v, fmt, args...)
+	return l.Outputf2(1, l.ErrorVariant(), "", fmt, args...)
 }
 
-func (l *Logger) Fatalf(s string, args ...interface{}) {
-	v := l.ErrorVariant()
-
-	if len(args) > 0 {
-		s = fmt.Sprintf(s, args...)
-	}
-
-	lines := l.Format(1, v, "", s)
-	l.WriteLines(v, lines)
-	panic(strings.Join(lines, "\n"))
+// Fatal is equivalent to Errorf() followed by a call to os.Exit(1)
+func (l *Logger) Fatalf(fmt string, args ...interface{}) {
+	l.OutputFatalf2(1, l.ErrorVariant(), "", fmt, args...)
 }
 
 func (l *Logger) Outputf(calldepth int, v Variant, s string, args ...interface{}) error {
-	if !l.VariantEnabled(v) {
-		return nil
-	}
-
-	if len(args) > 0 {
-		s = fmt.Sprintf(s, args...)
-	}
-
-	return l.WriteLines(v, l.Format(deeper(calldepth), v, "", s))
+	return l.Outputf2(deeper(calldepth), v, "", s, args...)
 }
 
 func (l *Logger) Outputf2(calldepth int, v Variant, p string, s string, args ...interface{}) error {
@@ -144,6 +111,16 @@ func (l *Logger) Outputf2(calldepth int, v Variant, p string, s string, args ...
 	}
 
 	return l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+}
+
+// OutputFatalf2 is an unconditional equivalent to Outputf2() followed by a call to os.Exit(1)
+func (l *Logger) OutputFatalf2(calldepth int, v Variant, p string, s string, args ...interface{}) {
+	if len(args) > 0 {
+		s = fmt.Sprintf(s, args...)
+	}
+
+	l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+	os.Exit(1)
 }
 
 // pretty.Sprintf
