@@ -5,6 +5,7 @@ import (
 
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Logger struct {
@@ -26,6 +27,11 @@ func (l *Logger) Error(args ...interface{}) error {
 // Fatal is equivalent to Error() followed by a call to os.Exit(1)
 func (l *Logger) Fatal(args ...interface{}) {
 	l.OutputFatal2(1, l.ErrorVariant(), "", args...)
+}
+
+// Panic is equivalent to Error() followed by a call to panic()
+func (l *Logger) Panic(args ...interface{}) {
+	l.OutputPanic2(1, l.ErrorVariant(), "", args...)
 }
 
 // Output is equivalent to fmt.Sprint() when the given variant is enabled
@@ -60,6 +66,20 @@ func (l *Logger) OutputFatal2(calldepth int, v Variant, p string, args ...interf
 	os.Exit(1)
 }
 
+// OutputPanic2 is an unconditional equivalent to Output2() followed by a call to panic()
+func (l *Logger) OutputPanic2(calldepth int, v Variant, p string, args ...interface{}) {
+	var s string
+
+	if len(args) > 0 {
+		s = fmt.Sprint(args...)
+	}
+
+	lines := l.Format(deeper(calldepth), v, p, s)
+	l.WriteLines(v, lines)
+
+	panic(strings.Join(lines, "\n"))
+}
+
 // pretty.Sprint
 func (l *Logger) PrettyPrint(args ...interface{}) error {
 	return l.OutputPretty2(1, l.DefaultVariant(), "", args...)
@@ -92,9 +112,14 @@ func (l *Logger) Errorf(fmt string, args ...interface{}) error {
 	return l.Outputf2(1, l.ErrorVariant(), "", fmt, args...)
 }
 
-// Fatal is equivalent to Errorf() followed by a call to os.Exit(1)
+// Fatalf is equivalent to Errorf() followed by a call to os.Exit(1)
 func (l *Logger) Fatalf(fmt string, args ...interface{}) {
 	l.OutputFatalf2(1, l.ErrorVariant(), "", fmt, args...)
+}
+
+// Panicf is equivalent to Errorf() followed by a call to panic()
+func (l *Logger) Panicf(fmt string, args ...interface{}) {
+	l.OutputPanicf2(1, l.ErrorVariant(), "", fmt, args...)
 }
 
 func (l *Logger) Outputf(calldepth int, v Variant, s string, args ...interface{}) error {
@@ -121,6 +146,18 @@ func (l *Logger) OutputFatalf2(calldepth int, v Variant, p string, s string, arg
 
 	l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
 	os.Exit(1)
+}
+
+// OutputPanicf2 is an unconditional equivalent to Outputf2() followed by a call to panic()
+func (l *Logger) OutputPanicf2(calldepth int, v Variant, p string, s string, args ...interface{}) {
+	if len(args) > 0 {
+		s = fmt.Sprintf(s, args...)
+	}
+
+	lines := l.Format(deeper(calldepth), v, p, s)
+	l.WriteLines(v, lines)
+
+	panic(strings.Join(lines, "\n"))
 }
 
 // pretty.Sprintf
