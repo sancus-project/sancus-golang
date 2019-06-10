@@ -11,3 +11,7 @@ func (logger *Logger) SetStandard() *Logger {
 
 	return logger
 }
+
+func (logger *Logger) NewStd(prefix string, v Variant) *log.Logger {
+	return log.New(logger.NewWriter(prefix, v), "", 0)
+}
