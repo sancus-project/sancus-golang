@@ -4,6 +4,7 @@ import (
 	"github.com/kr/pretty"
 
 	"fmt"
+	"strings"
 )
 
 type Logger struct {
@@ -21,6 +22,19 @@ func (l *Logger) Print(args ...interface{}) error {
 func (l *Logger) Error(args ...interface{}) error {
 	v := l.ErrorVariant()
 	return l.Output(1, v, args...)
+}
+
+func (l *Logger) Fatal(args ...interface{}) {
+	v := l.ErrorVariant()
+	var s string
+
+	if len(args) > 0 {
+		s = fmt.Sprint(args...)
+	}
+
+	lines := l.Format(1, v, "", s)
+	l.WriteLines(v, lines)
+	panic(strings.Join(lines, "\n"))
 }
 
 func (l *Logger) Output(calldepth int, v Variant, args ...interface{}) error {
@@ -96,6 +110,18 @@ func (l *Logger) Errorf(fmt string, args ...interface{}) error {
 	return l.Outputf(1, v, fmt, args...)
 }
 
+func (l *Logger) Fatalf(s string, args ...interface{}) {
+	v := l.ErrorVariant()
+
+	if len(args) > 0 {
+		s = fmt.Sprintf(s, args...)
+	}
+
+	lines := l.Format(1, v, "", s)
+	l.WriteLines(v, lines)
+	panic(strings.Join(lines, "\n"))
+}
+
 func (l *Logger) Outputf(calldepth int, v Variant, s string, args ...interface{}) error {
 	if !l.VariantEnabled(v) {
 		return nil
@@ -148,13 +174,4 @@ func (l *Logger) OutputPrettyf2(calldepth int, v Variant, p string, s string, ar
 	}
 
 	return l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
-}
-
-// Fatal logs an error and then panics
-func (l *Logger) Fatal(err error) {
-	if err != nil {
-		v := l.ErrorVariant()
-		l.Output(1, v, err)
-		panic(err)
-	}
 }
