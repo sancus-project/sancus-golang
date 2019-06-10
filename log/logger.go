@@ -80,6 +80,72 @@ func (l *Logger) OutputPanic2(calldepth int, v Variant, p string, args ...interf
 	panic(strings.Join(lines, "\n"))
 }
 
+// Println() is equivalent to fmt.Sprintln() using the DefaultVariant of the logger
+func (l *Logger) Println(args ...interface{}) error {
+	return l.Outputln2(1, l.DefaultVariant(), "", args...)
+}
+
+// Errorln() is equivalent to fmt.Sprintln() using the ErrorVariant of the logger
+func (l *Logger) Errorln(args ...interface{}) error {
+	return l.Outputln2(1, l.ErrorVariant(), "", args...)
+}
+
+// Fatalln() is equivalent to Errorln() followed by a call to os.Exit(1)
+func (l *Logger) Fatalln(args ...interface{}) {
+	l.OutputFatalln2(1, l.ErrorVariant(), "", args...)
+}
+
+// Panicln() is equivalent to Errorln() followed by a call to panic()
+func (l *Logger) Panicln(args ...interface{}) {
+	l.OutputPanicln2(1, l.ErrorVariant(), "", args...)
+}
+
+// Outputln() is equivalent to fmt.Sprintln() when the given variant is enabled
+func (l *Logger) Outputln(calldepth int, v Variant, args ...interface{}) error {
+	return l.Outputln2(deeper(calldepth), v, "", args...)
+}
+
+// Outputln2() is equivalent to fmt.Sprint() with a given prefix when the given variant is enabled
+func (l *Logger) Outputln2(calldepth int, v Variant, p string, args ...interface{}) error {
+	var s string
+
+	if !l.VariantEnabled(v) {
+		return nil
+	}
+
+	if len(args) > 0 {
+		s = fmt.Sprintln(args...)
+	}
+
+	return l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+}
+
+// OutputFatalln2() is an unconditional equivalent to Outputln2() followed by a call to os.Exit(1)
+func (l *Logger) OutputFatalln2(calldepth int, v Variant, p string, args ...interface{}) {
+	var s string
+
+	if len(args) > 0 {
+		s = fmt.Sprintln(args...)
+	}
+
+	l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+	os.Exit(1)
+}
+
+// OutputPanicln2() is an unconditional equivalent to Outputln2() followed by a call to panic()
+func (l *Logger) OutputPanicln2(calldepth int, v Variant, p string, args ...interface{}) {
+	var s string
+
+	if len(args) > 0 {
+		s = fmt.Sprintln(args...)
+	}
+
+	lines := l.Format(deeper(calldepth), v, p, s)
+	l.WriteLines(v, lines)
+
+	panic(strings.Join(lines, "\n"))
+}
+
 // pretty.Sprint
 func (l *Logger) PrettyPrint(args ...interface{}) error {
 	return l.OutputPretty2(1, l.DefaultVariant(), "", args...)
