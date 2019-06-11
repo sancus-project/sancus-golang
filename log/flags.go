@@ -16,6 +16,7 @@ const (
 	Lfileline
 	Lpackage
 	Lfunc
+	LPID
 
 	Lor
 	Land
