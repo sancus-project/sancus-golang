@@ -87,6 +87,10 @@ func (l *Logger) PrettyPrintln(args ...interface{}) error {
 	return l.OutputPrettyln2(1, l.DefaultVariant(), "", args...)
 }
 
+func (l *Logger) OutputPrettyln(calldepth int, v Variant, args ...interface{}) error {
+	return l.OutputPrettyln2(deeper(calldepth), v, "", args...)
+}
+
 // pretty.Sprintf
 func (l *Logger) PrettyPrintf(fmt string, args ...interface{}) error {
 	return l.OutputPrettyf2(1, l.DefaultVariant(), "", fmt, args...)

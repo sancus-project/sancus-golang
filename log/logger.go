@@ -152,6 +152,26 @@ func (l *Logger) OutputPanicf2(calldepth int, v Variant, p string, s string, arg
 	panic(strings.Join(lines, "\n"))
 }
 
+func (l *Logger) OutputPrettyln2(calldepth int, v Variant, p string, args ...interface{}) error {
+	var err error
+
+	if l.VariantEnabled(v) {
+		var s string
+
+		if len(args) > 0 {
+			w := make([]interface{}, len(args))
+			for i, x := range args {
+				w[i] = pretty.Formatter(x)
+			}
+			s = fmt.Sprintln(w...)
+		}
+
+		err = l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
+	}
+
+	return err
+}
+
 func (l *Logger) OutputPrettyf2(calldepth int, v Variant, p string, s string, args ...interface{}) error {
 	var err error
 
