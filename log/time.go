@@ -3,6 +3,7 @@ package log
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -15,6 +16,10 @@ type TimeContext interface {
 
 // writeTimestamp writes a timestamp according to flags and TimeContext
 func writeTimestamp(w *bufio.Writer, flags uint, tctx TimeContext) {
+	if flags&LPID != 0 {
+		w.WriteString(fmt.Sprintf("%v: ", os.Getpid()))
+	}
+
 	if flags&(Ldate|Ltime|Lseconds|Lrelative) != 0 {
 		var use_seconds bool
 		var use_elapsed bool

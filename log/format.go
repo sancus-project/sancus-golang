@@ -3,7 +3,6 @@ package log
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -80,10 +79,6 @@ func (logger *Logger) FormatLines(calldepth int, v Variant, p2 string, lines []s
 
 func formatPrefix(calldepth int, flags uint, p0, p1, p2 string) string {
 	var b strings.Builder
-
-	if flags&LPID != 0 {
-		b.WriteString(fmt.Sprintf("%v: ", os.Getpid()))
-	}
 
 	b.WriteString(p0) // variant prefix
 	b.WriteString(p1) // logger prefix
