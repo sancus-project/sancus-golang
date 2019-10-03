@@ -1,6 +1,11 @@
 package buffer
 
+import (
+	"sync"
+)
+
 type Buffer struct {
+	mu     sync.Mutex
 	buf    []byte
 	base   int
 	length int
@@ -29,19 +34,36 @@ func (b *Buffer) Size() int {
 }
 
 func (b *Buffer) Cap() int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
 	return len(b.buf) - b.base
 }
 
-func (b *Buffer) Reset() {
+func (b *Buffer) reset() {
 	b.length = 0
 	b.base = 0
 }
 
-func (b *Buffer) Bytes() []byte {
+func (b *Buffer) Reset() {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	b.reset()
+}
+
+func (b *Buffer) bytes() []byte {
 	return b.buf[b.base:b.length]
 }
 
-func (b *Buffer) Grow(n int) int {
+func (b *Buffer) Bytes() []byte {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.bytes()
+}
+
+func (b *Buffer) grow(n int) int {
 	var n0, n1, n2 int
 
 	// find new size
@@ -60,7 +82,7 @@ func (b *Buffer) Grow(n int) int {
 		// resize and rebase
 		b1 := make([]byte, n2)
 		if n0 > 0 {
-			copy(b1, b.buf[b.base:b.length])
+			copy(b1, b.bytes())
 		}
 		b.buf = b1
 		b.base = 0
@@ -69,19 +91,33 @@ func (b *Buffer) Grow(n int) int {
 	return n2
 }
 
-func (b *Buffer) Skip(n int) int {
+func (b *Buffer) Grow(n int) int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.grow(n)
+}
+
+func (b *Buffer) skip(n int) int {
 	if n >= b.length {
-		b.Reset()
+		b.reset()
 	} else {
 		b.base += n
 		b.length -= n
 
 		if b.base >= b.length {
 			// rebase
-			copy(b.buf[0:b.length], b.buf[b.base:b.length])
+			copy(b.buf[0:b.length], b.bytes())
 			b.base = 0
 		}
 	}
 
 	return b.length
+}
+
+func (b *Buffer) Skip(n int) int {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.skip(n)
 }

@@ -18,15 +18,21 @@ func (b *Buffer) peek(p []byte) (int, error) {
 }
 
 func (b *Buffer) Read(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
 	if l, err := b.peek(p); err != nil {
 		return 0, err
 	} else {
 		copy(p, b.buf[b.base:l])
-		b.Skip(l)
+		b.skip(l)
 		return l, nil
 	}
 }
 
 func (b *Buffer) Peek(buf []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
 	return b.peek(buf)
 }
