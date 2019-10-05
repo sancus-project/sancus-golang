@@ -159,11 +159,11 @@ func (l *Logger) OutputPrettyln2(calldepth int, v Variant, p string, args ...int
 		var s string
 
 		if len(args) > 0 {
-			w := make([]interface{}, len(args))
+			w := make([]string, len(args))
 			for i, x := range args {
-				w[i] = pretty.Formatter(x)
+				w[i] = fmt.Sprintf("%# v", pretty.Formatter(x))
 			}
-			s = fmt.Sprintln(w...)
+			s = strings.Join(w, " ")
 		}
 
 		err = l.WriteLines(v, l.Format(deeper(calldepth), v, p, s))
