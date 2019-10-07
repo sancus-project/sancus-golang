@@ -8,7 +8,7 @@ func (b *Buffer) ReadFrom(fd uintptr) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
-	tail := b.grow(0) - b.base - b.length
+	tail := b.grow(MinimumReadSpace) - b.base - b.length
 
 	for {
 		if rc, err := syscall.Read(int(fd), b.buf[b.base+b.length:tail]); err == nil {

@@ -13,6 +13,7 @@ type Buffer struct {
 
 const (
 	InitialBufferSize = 32
+	MinimumReadSpace  = 32
 )
 
 func New(size uint) *Buffer {
