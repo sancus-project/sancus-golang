@@ -26,7 +26,7 @@ func (b *Buffer) WriteTo(fd uintptr) (int, error) {
 
 	if b.length > 0 {
 		for {
-			if wc, err := syscall.Write(int(fd), b.buf[b.base:b.length]); err == nil {
+			if wc, err := syscall.Write(int(fd), b.buf[b.base:b.base+b.length]); err == nil {
 				b.skip(wc)
 				return wc, nil
 			} else if err != syscall.EINTR {

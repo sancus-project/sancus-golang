@@ -24,7 +24,7 @@ func (b *Buffer) Read(p []byte) (int, error) {
 	if l, err := b.peek(p); err != nil {
 		return 0, err
 	} else {
-		copy(p, b.buf[b.base:l])
+		copy(p, b.buf[b.base:b.base+l])
 		b.skip(l)
 		return l, nil
 	}

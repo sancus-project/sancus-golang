@@ -54,7 +54,7 @@ func (b *Buffer) Reset() {
 }
 
 func (b *Buffer) bytes() []byte {
-	return b.buf[b.base:b.length]
+	return b.buf[b.base : b.base+b.length]
 }
 
 func (b *Buffer) Bytes() []byte {
