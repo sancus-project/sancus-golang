@@ -4,7 +4,7 @@ import (
 	"syscall"
 )
 
-func (b *Buffer) ReadFrom(fd uintptr) (int, error) {
+func (b *Buffer) ReadFromFd(fd uintptr) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -20,7 +20,7 @@ func (b *Buffer) ReadFrom(fd uintptr) (int, error) {
 	}
 }
 
-func (b *Buffer) WriteTo(fd uintptr) (int, error) {
+func (b *Buffer) WriteToFd(fd uintptr) (int, error) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
