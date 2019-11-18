@@ -1,6 +1,8 @@
 package buffer
 
 import (
+	"io"
+	"syscall"
 	"unicode/utf8"
 )
 
@@ -46,4 +48,43 @@ func (b *Buffer) WriteRune(r rune) (int, error) {
 	b.length += l
 
 	return l, nil
+}
+
+func (b *Buffer) readOnceFrom(r io.Reader) (int64, error) {
+	b.grow(MinimumReadSpace)
+
+	for {
+		if rc, err := r.Read(b.buf[b.base+b.length:]); err == nil {
+			if rc == 0 {
+				return 0, io.EOF
+			} else {
+				b.length += rc
+				return int64(rc), nil
+			}
+		} else if err != syscall.EINTR {
+			return -1, err
+		}
+	}
+}
+
+func (b *Buffer) ReadOnceFrom(r io.Reader) (int64, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.readOnceFrom(r)
+}
+
+func (b *Buffer) ReadFrom(r io.Reader) (int64, error) {
+	var n int64
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	for {
+		if rc, err := b.readOnceFrom(r); err == nil {
+			n += rc
+		} else if err != syscall.EAGAIN {
+			return n, err
+		}
+	}
 }
