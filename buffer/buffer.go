@@ -17,13 +17,18 @@ const (
 )
 
 func New(size uint) *Buffer {
+	b := &Buffer{}
+	b.init(size)
+
+	return b
+}
+
+func (b *Buffer) init(size uint) {
 	if size == 0 {
 		size = InitialBufferSize
 	}
 
-	return &Buffer{
-		buf: make([]byte, size),
-	}
+	b.buf = make([]byte, size)
 }
 
 func (b *Buffer) Len() int {
