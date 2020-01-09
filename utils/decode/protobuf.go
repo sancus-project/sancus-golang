@@ -22,9 +22,15 @@ func ScanProtobuf(data []byte, atEOF bool) (advance int, token []byte, err error
 	if x, n := proto.DecodeVarint(data); n > 0 {
 		wire := x & 0b111 // wire type
 
+		// message length
 		switch wire {
 		case 0: // Varint
-			advance = n
+			if len(data) > n {
+				// value length
+				if _, l := proto.DecodeVarint(data[n:]); l > 0 {
+					advance = n + l
+				}
+			}
 		case 5: // fixed32
 			advance = n + 4
 		case 1: // fixed64
@@ -32,10 +38,9 @@ func ScanProtobuf(data []byte, atEOF bool) (advance int, token []byte, err error
 		case 2: // length delimited
 			if len(data) > n {
 				// payload length
-				plen := int(data[n : n+1][0])
-
-				// message length
-				advance = n + 1 + plen
+				if plen, l := proto.DecodeVarint(data[n:]); l > 0 {
+					advance = n + l + int(plen)
+				}
 			}
 		default:
 			err = ErrorInvalidProtobuf
