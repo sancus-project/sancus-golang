@@ -2,7 +2,7 @@ package uritemplate
 
 import (
 	"bytes"
-	"go.sancus.dev/sancus/log"
+	"go.sancus.dev/sancus/attic/log"
 )
 
 type exprSequence struct {

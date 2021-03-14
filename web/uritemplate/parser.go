@@ -1,7 +1,7 @@
 package uritemplate
 
 import (
-	"go.sancus.dev/sancus/log"
+	"go.sancus.dev/sancus/attic/log"
 )
 
 // parsing stack

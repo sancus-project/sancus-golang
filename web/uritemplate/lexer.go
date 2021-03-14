@@ -2,7 +2,7 @@ package uritemplate
 
 import (
 	"fmt"
-	"go.sancus.dev/sancus/log"
+	"go.sancus.dev/sancus/attic/log"
 	"unicode/utf8"
 )
 
