@@ -1,7 +1,7 @@
 package web
 
 import (
-	"go.sancus.io/core/net"
+	"go.sancus.dev/sancus/net"
 	"net/http"
 )
 

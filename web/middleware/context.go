@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"go.sancus.io/web/context"
+	"go.sancus.dev/sancus/web/context"
 	"net/http"
 )
 

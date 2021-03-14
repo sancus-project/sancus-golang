@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"go.sancus.io/web/context"
-	"go.sancus.io/web/dispatcher"
+	"go.sancus.dev/sancus/web/context"
+	"go.sancus.dev/sancus/web/dispatcher"
 	"net/http"
 	"regexp"
 )

@@ -2,7 +2,7 @@ package uritemplate
 
 import (
 	"fmt"
-	"go.sancus.io/core/log"
+	"go.sancus.dev/sancus/log"
 )
 
 type exprCapture struct {

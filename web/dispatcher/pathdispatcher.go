@@ -1,9 +1,9 @@
 package dispatcher
 
 import (
-	"go.sancus.io/core/log"
-	"go.sancus.io/web/context"
-	"go.sancus.io/web/uritemplate"
+	"go.sancus.dev/sancus/log"
+	"go.sancus.dev/sancus/web/context"
+	"go.sancus.dev/sancus/web/uritemplate"
 	"net/http"
 )
 
