@@ -105,3 +105,37 @@ func (ctx *LoggerContext) VariantEnabled(k Variant, mask uint) bool {
 	}
 	return false
 }
+
+// EnableVariant
+func (logger *Logger) EnableVariant(k Variant) *Logger {
+	n := uint(k)
+	if n >= Lvariants {
+		logger.SetFlags(n | Lor)
+	}
+	return logger
+}
+
+func (ctx *LoggerContext) EnableVariant(k Variant) *LoggerContext {
+	n := uint(k)
+	if n >= Lvariants {
+		ctx.SetFlags(n | Lor)
+	}
+	return ctx
+}
+
+// DisableVariant
+func (logger *Logger) DisableVariant(k Variant) *Logger {
+	n := uint(k)
+	if n >= Lvariants {
+		logger.SetFlags(n | Lnot)
+	}
+	return logger
+}
+
+func (ctx *LoggerContext) DisableVariant(k Variant) *LoggerContext {
+	n := uint(k)
+	if n >= Lvariants {
+		ctx.SetFlags(n | Lnot)
+	}
+	return ctx
+}
