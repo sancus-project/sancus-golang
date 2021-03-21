@@ -2,6 +2,7 @@ package log
 
 import (
 	"io"
+	"fmt"
 	"sync"
 )
 
@@ -29,7 +30,10 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 	}
 }
 
-func (logger *Logger) New(prefix string) *Logger {
+func (logger *Logger) New(prefix string, args... interface{}) *Logger {
+	if len(args) > 0 {
+		prefix = fmt.Sprintf(prefix, args...)
+	}
 	p := logger.ctx.NewLogger(logger.prefix + prefix)
 	p.flags = logger.flags
 	p.defaultVariant = logger.defaultVariant
