@@ -12,6 +12,8 @@ type Logger struct {
 	prefix string
 	flags  uint
 	ctx    *LoggerContext
+
+	defaultVariant Variant
 }
 
 // Output2 is equivalent to fmt.Sprint() with a given prefix when the given variant is enabled

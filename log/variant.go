@@ -10,22 +10,13 @@ type loggerVariant struct {
 
 // SetDefaultVariant
 func (logger *Logger) SetDefaultVariant(v Variant) *Logger {
-	logger.ctx.SetDefaultVariant(v)
+	logger.defaultVariant = v
 	return logger
-}
-
-func (ctx *LoggerContext) SetDefaultVariant(v Variant) *LoggerContext {
-	ctx.defaultVariant = v
-	return ctx
 }
 
 // DefaultVariant
 func (logger *Logger) DefaultVariant() Variant {
-	return logger.ctx.DefaultVariant()
-}
-
-func (ctx *LoggerContext) DefaultVariant() Variant {
-	return ctx.defaultVariant
+	return logger.defaultVariant
 }
 
 // SetErrorVariant

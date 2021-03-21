@@ -11,9 +11,8 @@ type LoggerContext struct {
 	backend io.Writer
 	timectx TimeContext
 
-	defaultVariant Variant
-	errorVariant   Variant
-	variants       map[Variant]loggerVariant
+	errorVariant Variant
+	variants     map[Variant]loggerVariant
 }
 
 func NewLoggerContext(flags uint) *LoggerContext {
@@ -33,6 +32,7 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 func (logger *Logger) New(prefix string) *Logger {
 	p := logger.ctx.NewLogger(logger.prefix + prefix)
 	p.flags = logger.flags
+	p.defaultVariant = logger.defaultVariant
 	return p
 }
 
