@@ -1,8 +1,8 @@
 package log
 
 import (
-	"io"
 	"fmt"
+	"io"
 	"sync"
 )
 
@@ -30,7 +30,7 @@ func (ctx *LoggerContext) NewLogger(prefix string) *Logger {
 	}
 }
 
-func (logger *Logger) New(prefix string, args... interface{}) *Logger {
+func (logger *Logger) New(prefix string, args ...interface{}) *Logger {
 	if len(args) > 0 {
 		prefix = fmt.Sprintf(prefix, args...)
 	}
