@@ -10,6 +10,7 @@ type Looker interface {
 
 type Mapper interface {
 	Looker
+	Parse()
 
 	GetUint16(name string) (uint16, bool)
 	GetDuration(name string) (time.Duration, bool)
